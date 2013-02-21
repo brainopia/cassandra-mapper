@@ -9,6 +9,7 @@ describe Cassandra::Mapper do
     unless subject.keyspace.column_families.keys.include? table.to_s
       subject.migrate
     end
+    subject.keyspace.clear_keyspace!
   end
 
   context 'two keys' do
@@ -16,27 +17,27 @@ describe Cassandra::Mapper do
     let(:definition) do
       proc do
         key :field1, :field2
+        types \
+          field1: :integer,
+          field2: :integer,
+          field3: :integer
       end
     end
 
     let(:field1) { 1 }
     let(:field2) { 2 }
     let(:field3) { 3 }
+    let(:keys) {{ field1: field1, field2: field2 }}
 
     it '#insert only keys' do
-      subject.insert field1: field1, field2: field2
-      composite = Cassandra::Composite.new field1.to_s
-      result = subject.keyspace.get table, field2.to_s,
-        start: composite, finish: composite
-      result.should be_empty
+      subject.insert keys
+      subject.one(keys).should == keys
     end
 
     it '#inserts keys with data' do
-      subject.insert field1: field1, field2: field2, field3: field3
-      composite = Cassandra::Composite.new field1.to_s
-      result = subject.keyspace.get table, field2.to_s,
-        start: composite, finish: composite
-      result.should == { 'field3' => field3 }
+      payload = keys.merge(field3: field3)
+      subject.insert payload
+      subject.one(keys).should == payload
     end
   end
 end

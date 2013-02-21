@@ -26,14 +26,32 @@ class Cassandra::Mapper
     end
   end
 
+  def one(keys)
+    get(keys).first
+  end
+
   def get(keys)
     keys    = convert keys
     key     = keys.delete config.key
     subkeys = config.subkeys.map {|it| keys.delete(it).to_s }
 
-    keyspace.get table, key,
+    result = keyspace.get table, key,
       start: Cassandra::Composite.new(*subkeys),
-      finish: Cassandra::Composite.new(*subkeys)
+      finish: Cassandra::Composite.new(*subkeys, slice: :after)
+
+    unless result.empty?
+      slices = result.each_with_object({}) do |(composite, value), hash|
+        slice = hash[composite[0..-2]] ||= {}
+        field = composite[-1]
+        slice[field.to_sym] = value unless field.empty?
+      end
+
+      slices.map do |subkeys, fields|
+        fields.merge! Hash[config.subkeys.zip(subkeys)]
+        fields[config.key] = key
+        unconvert fields
+      end
+    end
   end
 
   def migrate
@@ -53,6 +71,12 @@ class Cassandra::Mapper
     data = data.dup
     data.each do |field, value|
       data[field] = Convert.to config.types[field], value
+    end
+  end
+
+  def unconvert(data)
+    data.each do |field, value|
+      data[field] = Convert.from config.types[field], value
     end
   end
 
