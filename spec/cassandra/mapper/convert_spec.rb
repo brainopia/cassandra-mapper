@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Cassandra::Mapper::Convert do
   context 'uuid' do
-    let(:time) { Time.now }
+    let(:time) { Time.now.round }
 
     it '#to' do
       subject.to(:uuid, time).should have(16).bytes
