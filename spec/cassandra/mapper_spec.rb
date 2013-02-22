@@ -146,5 +146,14 @@ describe Cassandra::Mapper do
       it_behaves_like :convertable
       it_behaves_like :uuid_convertable
     end
+
+    context 'complex key' do
+      let(:key)     {[ :key, :field ]}
+      let(:subkey)  {}
+      let(:query)   {{ key: 42, field: original }}
+      let(:data)    {{ key: 42, field: original, data: :dummy }}
+
+      it_behaves_like :convertable
+    end
   end
 end
