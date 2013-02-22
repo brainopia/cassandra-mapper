@@ -5,8 +5,9 @@ require 'cassandra'
 class Cassandra::Mapper
   require_relative 'mapper/config'
   require_relative 'mapper/convert'
+  require_relative 'mapper/request_data'
+  require_relative 'mapper/response_data'
 
-  KEY_SEPARATOR = '##'
   attr_reader :keyspace, :table, :config
 
   def initialize(keyspace, table, &block)
@@ -16,50 +17,19 @@ class Cassandra::Mapper
   end
 
   def insert(data)
-    data    = convert data
-    keys    = config.key.map {|it| data.delete(it) }.join KEY_SEPARATOR
-    subkeys = config.subkey.map {|it| data.delete(it).to_s }
+    data = RequestData.new config, data
+    keyspace.insert table, data.packed_keys, data.columns
+  end
 
-    data = { '' => '' } if data.empty?
-
-    keyspace.batch do
-      data.each do |field, value|
-        keyspace.insert table, keys, composite(*subkeys, field.to_s) => value
-      end
-    end
+  def get(query)
+    request  = RequestData.new config, query
+    columns  = keyspace.get table, request.packed_keys, request.query
+    response = ResponseData.new config, request.keys, columns
+    response.unpack
   end
 
   def one(keys)
     get(keys).first
-  end
-
-  def get(query)
-    query   = convert query
-    keys    = config.key.map {|it| query.delete(it) }
-    subkeys = config.subkey.map {|it| query.delete(it).to_s }
-
-    if subkeys.any? {|it| not it.empty? }
-      options = {
-        start: composite(*subkeys),
-        finish: composite(*subkeys, slice: :after)
-      }
-    end
-
-    result = keyspace.get table, keys.join(KEY_SEPARATOR), options
-
-    unless result.empty?
-      slices = result.each_with_object({}) do |(composite, value), hash|
-        slice = hash[composite[0..-2]] ||= {}
-        field = composite[-1]
-        slice[field.to_sym] = value unless field.empty?
-      end
-
-      slices.map do |subkeys, fields|
-        fields.merge! Hash[config.key.zip(keys)]
-        fields.merge! Hash[config.subkey.zip(subkeys)]
-        unconvert fields
-      end
-    end
   end
 
   def migrate
@@ -74,24 +44,5 @@ class Cassandra::Mapper
       keyspace: keyspace.keyspace,
       name: table.to_s,
       comparator_type: "CompositeType(#{subkey_types.join ','})"
-  end
-
-  private
-
-  def convert(data)
-    data = data.dup
-    data.each do |field, value|
-      data[field] = Convert.to config.types[field], value
-    end
-  end
-
-  def unconvert(data)
-    data.each do |field, value|
-      data[field] = Convert.from config.types[field], value
-    end
-  end
-
-  def composite(*args)
-    Cassandra::Composite.new *args
   end
 end
