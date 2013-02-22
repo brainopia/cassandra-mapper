@@ -5,15 +5,14 @@ describe Cassandra::Mapper do
     described_class.new :test_mapper, table, &definition
   end
 
-  before :each do
-    unless subject.keyspace.column_families.keys.include? table.to_s
-      subject.migrate
-    end
-    subject.keyspace.clear_keyspace!
+  before do
+    subject.keyspace.drop_column_family table.to_s rescue nil
+    subject.migrate
   end
 
-  context 'two keys' do
-    let(:table) { :two_keys }
+  let(:table) { :common }
+
+  context 'one subkey' do
     let(:definition) do
       proc do
         key :field1, :field2
@@ -29,15 +28,119 @@ describe Cassandra::Mapper do
     let(:field3) { 3 }
     let(:keys) {{ field1: field1, field2: field2 }}
 
-    it '#insert only keys' do
+    it 'only keys' do
       subject.insert keys
       subject.one(keys).should == keys
     end
 
-    it '#inserts keys with data' do
+    it 'with data' do
       payload = keys.merge(field3: field3)
       subject.insert payload
       subject.one(keys).should == payload
+    end
+  end
+
+  context 'conversions' do
+    let :definition do
+      keys = self.keys
+      type = self.type
+      proc do
+        key *keys
+        types field: type
+      end
+    end
+
+    def self.converts(type, original, expected=original, &block)
+      context "converts #{type}" do
+        let(:original) { original }
+        let(:expected) { expected }
+        let(:compare)  { block or -> it { it }}
+        it_behaves_like :type
+      end
+    end
+
+    shared_examples_for :convertable do
+      context 'default text type' do
+        let(:type) { nil }
+        converts 'integer', 2, '2'
+        converts 'string', 'string'
+      end
+
+      context 'integer type' do
+        let(:type) { :integer }
+        converts 'integer', 2
+        converts 'big integer', 1_000_000
+        converts 'string', '32', 32
+      end
+
+      context 'boolean type' do
+        let(:type) { :boolean }
+        converts 'true', true
+        converts 'false', false
+      end
+
+      context 'time' do
+        let(:type) { :time }
+        converts 'time', Time.now.round
+        converts('date', Date.today) {|time| time.to_date }
+      end
+
+      context 'decimal' do
+        let(:type) { :decimal }
+        converts 'integer', 20
+        converts 'float', 30.442
+        converts 'decimal', BigDecimal('42.42')
+      end
+
+      context 'float' do
+        let(:type) { :float }
+        converts 'integer', 20
+        converts 'float', 30.30
+      end
+    end
+
+    shared_examples_for :uuid_convertable do
+      context 'uuid' do
+        let(:type) { :uuid }
+
+        converts 'uuid', SimpleUUID::UUID.new
+        converts('time', Time.now) {|uuid| uuid.to_time }
+      end
+    end
+
+    shared_examples_for :type do
+      before { subject.insert data }
+
+      it 'should be correctly restored' do
+        restored = subject.one(query)[:field]
+        compare.(restored).should == expected
+      end
+    end
+
+    context 'key' do
+      let(:keys)  { :field }
+      let(:query) {{ field: original }}
+      let(:data)  {{ field: original, data: :dummy }}
+
+      it_behaves_like :convertable
+    end
+
+    context 'subkeys' do
+      let(:keys)  {[:key, :field]}
+      let(:query) {{ key: 42 }}
+      let(:data)  {{ key: 42, field: original }}
+
+      it_behaves_like :convertable
+      it_behaves_like :uuid_convertable
+    end
+
+    context 'data' do
+      let(:keys)  { :key }
+      let(:query) {{ key: 42 }}
+      let(:data)  {{ key: 42, field: original }}
+
+      it_behaves_like :convertable
+      it_behaves_like :uuid_convertable
     end
   end
 end

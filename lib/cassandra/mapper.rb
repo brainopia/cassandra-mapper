@@ -1,5 +1,6 @@
-require 'cassandra'
 require 'bigdecimal'
+require 'time'
+require 'cassandra'
 
 class Cassandra::Mapper
   require_relative 'mapper/config'
@@ -22,7 +23,7 @@ class Cassandra::Mapper
 
     keyspace.batch do
       data.each do |field, value|
-        keyspace.insert table, key, composite(subkeys, field) => value
+        keyspace.insert table, key, composite(*subkeys, field.to_s) => value
       end
     end
   end
@@ -36,9 +37,14 @@ class Cassandra::Mapper
     key     = keys.delete config.key
     subkeys = config.subkeys.map {|it| keys.delete(it).to_s }
 
-    result = keyspace.get table, key,
-      start: Cassandra::Composite.new(*subkeys),
-      finish: Cassandra::Composite.new(*subkeys, slice: :after)
+    if subkeys.any? {|it| not it.empty? }
+      options = {
+        start: composite(*subkeys),
+        finish: composite(*subkeys, slice: :after)
+      }
+    end
+
+    result = keyspace.get table, key, options
 
     unless result.empty?
       slices = result.each_with_object({}) do |(composite, value), hash|
@@ -60,10 +66,13 @@ class Cassandra::Mapper
       Convert.type config.types[it]
     end
 
+    # field subkey
+    subkey_types.push Convert::TEXT_TYPE
+
     keyspace.add_column_family Cassandra::ColumnFamily.new \
       keyspace: keyspace.keyspace,
       name: table.to_s,
-      comparator_type: "CompositeType(#{subkey_types.join ','},UTF8Type)"
+      comparator_type: "CompositeType(#{subkey_types.join ','})"
   end
 
   private
@@ -81,7 +90,7 @@ class Cassandra::Mapper
     end
   end
 
-  def composite(subkeys, field)
-    Cassandra::Composite.new *subkeys, field.to_s
+  def composite(*args)
+    Cassandra::Composite.new *args
   end
 end

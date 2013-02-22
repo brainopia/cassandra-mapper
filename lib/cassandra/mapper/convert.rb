@@ -2,14 +2,14 @@ class Cassandra::Mapper
   module Convert
     extend self
 
-    TYPES = {
-      nil =>    'UTF8Type',
+    TEXT_TYPE = 'UTF8Type'
+    TYPES     = {
       uuid:     'TimeUUIDType',
       integer:  'Int32Type'
     }
 
     def type(symbol)
-      TYPES[symbol]
+      TYPES.fetch symbol, TEXT_TYPE
     end
 
     def to(type, value)
@@ -39,7 +39,7 @@ class Cassandra::Mapper
     end
 
     def to_integer(value)
-      [value].pack('N')
+      [value.to_i].pack('N')
     end
 
     def from_integer(value)
@@ -76,6 +76,14 @@ class Cassandra::Mapper
 
     def from_json(value)
       MultiJson.load value
+    end
+
+    def to_float(value)
+      value.to_s
+    end
+
+    def from_float(value)
+      value.to_f
     end
   end
 end
