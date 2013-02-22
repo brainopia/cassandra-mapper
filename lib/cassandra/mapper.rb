@@ -1,4 +1,5 @@
 require 'cassandra'
+require 'bigdecimal'
 
 class Cassandra::Mapper
   require_relative 'mapper/config'
