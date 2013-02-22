@@ -10,8 +10,8 @@ class Cassandra::Mapper
       @options[:key]
     end
 
-    def subkeys
-      @options[:subkeys]
+    def subkey
+      @options[:subkey]
     end
 
     def types
@@ -31,8 +31,11 @@ class Cassandra::Mapper
       end
 
       def key(*fields)
-        @options[:key]     = fields.shift
-        @options[:subkeys] = fields
+        @options[:key] = fields
+      end
+
+      def subkey(*fields)
+        @options[:subkey] = fields
       end
 
       def types(hash)

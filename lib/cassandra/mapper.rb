@@ -6,6 +6,7 @@ class Cassandra::Mapper
   require_relative 'mapper/config'
   require_relative 'mapper/convert'
 
+  KEY_SEPARATOR = '##'
   attr_reader :keyspace, :table, :config
 
   def initialize(keyspace, table, &block)
@@ -16,14 +17,14 @@ class Cassandra::Mapper
 
   def insert(data)
     data    = convert data
-    key     = data.delete config.key
-    subkeys = config.subkeys.map {|it| data.delete(it).to_s }
+    keys    = config.key.map {|it| data.delete(it) }.join KEY_SEPARATOR
+    subkeys = config.subkey.map {|it| data.delete(it).to_s }
 
     data = { '' => '' } if data.empty?
 
     keyspace.batch do
       data.each do |field, value|
-        keyspace.insert table, key, composite(*subkeys, field.to_s) => value
+        keyspace.insert table, keys, composite(*subkeys, field.to_s) => value
       end
     end
   end
@@ -32,10 +33,10 @@ class Cassandra::Mapper
     get(keys).first
   end
 
-  def get(keys)
-    keys    = convert keys
-    key     = keys.delete config.key
-    subkeys = config.subkeys.map {|it| keys.delete(it).to_s }
+  def get(query)
+    query   = convert query
+    keys    = config.key.map {|it| query.delete(it) }
+    subkeys = config.subkey.map {|it| query.delete(it).to_s }
 
     if subkeys.any? {|it| not it.empty? }
       options = {
@@ -44,7 +45,7 @@ class Cassandra::Mapper
       }
     end
 
-    result = keyspace.get table, key, options
+    result = keyspace.get table, keys.join(KEY_SEPARATOR), options
 
     unless result.empty?
       slices = result.each_with_object({}) do |(composite, value), hash|
@@ -54,15 +55,15 @@ class Cassandra::Mapper
       end
 
       slices.map do |subkeys, fields|
-        fields.merge! Hash[config.subkeys.zip(subkeys)]
-        fields[config.key] = key
+        fields.merge! Hash[config.key.zip(keys)]
+        fields.merge! Hash[config.subkey.zip(subkeys)]
         unconvert fields
       end
     end
   end
 
   def migrate
-    subkey_types = config.subkeys.map do |it|
+    subkey_types = config.subkey.map do |it|
       Convert.type config.types[it]
     end
 

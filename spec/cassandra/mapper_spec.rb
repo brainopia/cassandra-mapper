@@ -15,7 +15,8 @@ describe Cassandra::Mapper do
   context 'one subkey' do
     let(:definition) do
       proc do
-        key :field1, :field2
+        key :field1
+        subkey :field2
         types \
           field1: :integer,
           field2: :integer,
@@ -42,11 +43,11 @@ describe Cassandra::Mapper do
 
   context 'conversions' do
     let :definition do
-      keys = self.keys
-      type = self.type
+      scope = self
       proc do
-        key *keys
-        types field: type
+        key *scope.key
+        subkey *scope.subkey
+        types field: scope.type
       end
     end
 
@@ -118,26 +119,29 @@ describe Cassandra::Mapper do
     end
 
     context 'key' do
-      let(:keys)  { :field }
-      let(:query) {{ field: original }}
-      let(:data)  {{ field: original, data: :dummy }}
+      let(:key)     { :field }
+      let(:subkey)  {}
+      let(:query)   {{ field: original }}
+      let(:data)    {{ field: original, data: :dummy }}
 
       it_behaves_like :convertable
     end
 
     context 'subkeys' do
-      let(:keys)  {[:key, :field]}
-      let(:query) {{ key: 42 }}
-      let(:data)  {{ key: 42, field: original }}
+      let(:key)     { :key }
+      let(:subkey)  { :field }
+      let(:query)   {{ key: 42 }}
+      let(:data)    {{ key: 42, field: original }}
 
       it_behaves_like :convertable
       it_behaves_like :uuid_convertable
     end
 
     context 'data' do
-      let(:keys)  { :key }
-      let(:query) {{ key: 42 }}
-      let(:data)  {{ key: 42, field: original }}
+      let(:key)     { :key }
+      let(:subkey)  {}
+      let(:query)   {{ key: 42 }}
+      let(:data)    {{ key: 42, field: original }}
 
       it_behaves_like :convertable
       it_behaves_like :uuid_convertable
