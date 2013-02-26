@@ -1,0 +1,4 @@
+test:
+  test_mapper:
+    strategy: SimpleStrategy
+    replication_factor: 1

@@ -1,13 +1,8 @@
 require 'cassandra/mapper'
 
-TEST_KEYSPACE = 'test_mapper'
-
-# create testing keyspace if needed
-cassandra = Cassandra.new('system')
-unless cassandra.keyspaces.include? TEST_KEYSPACE
-  cassandra.add_keyspace Cassandra::Keyspace.new \
-    name: TEST_KEYSPACE,
-    strategy_class: 'SimpleStrategy',
-    strategy_options: { 'replication_factor' => '1' },
-    cf_defs: []
+begin
+  schema = File.expand_path File.join __FILE__, '../schema.yml'
+  Cassandra::Mapper.migrate 'test', YAML.load_file(schema)
+rescue CassandraThrift::InvalidRequestException
+  puts 'Using existing keyspace'
 end

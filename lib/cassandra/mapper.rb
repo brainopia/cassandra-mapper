@@ -8,12 +8,30 @@ class Cassandra::Mapper
   require_relative 'mapper/request_data'
   require_relative 'mapper/response_data'
 
-  attr_reader :keyspace, :table, :config
+  attr_reader :table, :config
+
+  @all = []
+  singleton_class.send :attr_reader, :all
+
+  def self.migrate(env, schema)
+    cassandra = Cassandra.new('system')
+    schema[env].each do |name, options|
+      strategy = options.delete 'strategy'
+      options['replication_factor'] = options['replication_factor'].to_s
+      cassandra.add_keyspace Cassandra::Keyspace.new \
+        name: name,
+        strategy_class: strategy,
+        strategy_options: options,
+        cf_defs: []
+    end
+  end
 
   def initialize(keyspace, table, &block)
     @keyspace = keyspace.to_s
     @table    = table.to_s
     @config   = Config.new(&block)
+
+    self.class.all << self
   end
 
   def keyspace
