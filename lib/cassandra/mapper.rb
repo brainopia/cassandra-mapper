@@ -11,9 +11,13 @@ class Cassandra::Mapper
   attr_reader :keyspace, :table, :config
 
   def initialize(keyspace, table, &block)
-    @keyspace = Cassandra.new keyspace.to_s
-    @table    = table
+    @keyspace = keyspace.to_s
+    @table    = table.to_s
     @config   = Config.new(&block)
+  end
+
+  def keyspace
+    Thread.current["keyspace_#@keyspace"] ||= Cassandra.new @keyspace
   end
 
   def insert(data)
@@ -42,7 +46,7 @@ class Cassandra::Mapper
 
     keyspace.add_column_family Cassandra::ColumnFamily.new \
       keyspace: keyspace.keyspace,
-      name: table.to_s,
+      name: table,
       comparator_type: "CompositeType(#{subkey_types.join ','})"
   end
 end
