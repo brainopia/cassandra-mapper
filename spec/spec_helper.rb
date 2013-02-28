@@ -1,4 +1,5 @@
 require 'cassandra/mapper'
+require 'yaml'
 
 begin
   schema = File.expand_path File.join __FILE__, '../schema.yml'

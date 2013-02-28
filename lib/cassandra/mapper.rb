@@ -7,24 +7,12 @@ class Cassandra::Mapper
   require_relative 'mapper/convert'
   require_relative 'mapper/request_data'
   require_relative 'mapper/response_data'
+  require_relative 'mapper/migrate'
 
   attr_reader :table, :config
 
   @all = []
   singleton_class.send :attr_reader, :all
-
-  def self.migrate(env, schema)
-    cassandra = Cassandra.new('system')
-    schema[env].each do |name, options|
-      strategy = options.delete 'strategy'
-      options['replication_factor'] = options['replication_factor'].to_s
-      cassandra.add_keyspace Cassandra::Keyspace.new \
-        name: name,
-        strategy_class: strategy,
-        strategy_options: options,
-        cf_defs: []
-    end
-  end
 
   def initialize(keyspace, table, &block)
     @keyspace = keyspace.to_s
@@ -52,19 +40,5 @@ class Cassandra::Mapper
 
   def one(keys)
     get(keys).first
-  end
-
-  def migrate
-    subkey_types = config.subkey.map do |it|
-      Convert.type config.types[it]
-    end
-
-    # field subkey
-    subkey_types.push Convert::TEXT_TYPE
-
-    keyspace.add_column_family Cassandra::ColumnFamily.new \
-      keyspace: keyspace.keyspace,
-      name: table,
-      comparator_type: "CompositeType(#{subkey_types.join ','})"
   end
 end
