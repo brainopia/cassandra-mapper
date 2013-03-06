@@ -5,10 +5,10 @@ class Cassandra::Mapper
       strategy = options.delete 'strategy'
       options['replication_factor'] = options['replication_factor'].to_s
       cassandra.add_keyspace Cassandra::Keyspace.new \
-        name: name,
-        strategy_class: strategy,
+        name:             name,
+        strategy_class:   strategy,
         strategy_options: options,
-        cf_defs: []
+        cf_defs:          []
     end
   end
 
@@ -21,8 +21,8 @@ class Cassandra::Mapper
     subkey_types.push Convert::TEXT_TYPE
 
     keyspace.add_column_family Cassandra::ColumnFamily.new \
-      keyspace: keyspace.keyspace,
-      name: table,
+      keyspace:        keyspace.keyspace,
+      name:            table,
       comparator_type: "CompositeType(#{subkey_types.join ','})"
   end
 end
