@@ -2,8 +2,10 @@ class Cassandra::Mapper
   def self.migrate(env, schema)
     cassandra = Cassandra.new('system')
     schema[env].each do |name, options|
-      strategy = options.delete 'strategy'
-      options['replication_factor'] = options['replication_factor'].to_s
+      options ||= {}
+      strategy = options.delete('strategy') || 'SimpleStrategy'
+      options['replication_factor'] = options.fetch('replication_factor', 1).to_s
+
       cassandra.add_keyspace Cassandra::Keyspace.new \
         name:             name,
         strategy_class:   strategy,
