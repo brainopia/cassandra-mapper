@@ -31,6 +31,7 @@ class Cassandra::Mapper
     end
 
     def to_uuid(value)
+      value = Time.parse value if value.is_a? String
       SimpleUUID::UUID.new(value).to_s
     end
 
