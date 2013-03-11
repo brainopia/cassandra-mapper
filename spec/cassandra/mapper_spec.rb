@@ -104,8 +104,9 @@ describe Cassandra::Mapper do
       context 'uuid' do
         let(:type) { :uuid }
 
-        converts 'uuid', SimpleUUID::UUID.new
-        converts('time', Time.now.round) {|uuid| uuid.to_time }
+        uuid = SimpleUUID::UUID.new
+        converts 'uuid', uuid, uuid.to_time
+        converts 'time', Time.now.round
       end
     end
 

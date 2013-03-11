@@ -36,7 +36,7 @@ class Cassandra::Mapper
     end
 
     def from_uuid(value)
-      SimpleUUID::UUID.new value
+      SimpleUUID::UUID.new(value).to_time
     end
 
     def to_integer(value)

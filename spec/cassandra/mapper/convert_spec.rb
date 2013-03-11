@@ -10,7 +10,7 @@ describe Cassandra::Mapper::Convert do
 
     it '#from' do
       uuid = subject.to(:uuid, time)
-      subject.from(:uuid, uuid).to_time.should == time
+      subject.from(:uuid, uuid).should == time
     end
   end
 
