@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Cassandra::Mapper::Instances do
+describe Cassandra::Mapper::StoreInstances do
   let(:subject) { Class.new.tap {|it| it.extend described_class }}
 
   it 'should initialize instances with array' do

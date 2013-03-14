@@ -9,9 +9,9 @@ class Cassandra::Mapper
   require_relative 'mapper/extend/migrate'
   require_relative 'mapper/extend/queries'
   require_relative 'mapper/utility/config'
-  require_relative 'mapper/utility/instances'
+  require_relative 'mapper/utility/store_instances'
 
-  extend Instances
+  extend StoreInstances
 
   attr_reader :table, :config
 
