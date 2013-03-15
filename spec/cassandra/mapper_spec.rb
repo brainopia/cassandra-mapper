@@ -17,10 +17,9 @@ describe Cassandra::Mapper do
       proc do
         key :field1
         subkey :field2
-        types \
-          field1: :integer,
-          field2: :integer,
-          field3: :integer
+        type :field1, :integer
+        type :field2, :integer
+        type :field3, :integer
       end
     end
 
@@ -47,7 +46,7 @@ describe Cassandra::Mapper do
       proc do
         key *scope.key
         subkey *scope.subkey
-        types field: scope.type
+        type :field, scope.type
       end
     end
 

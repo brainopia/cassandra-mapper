@@ -38,8 +38,8 @@ class Cassandra::Mapper
         @options[:subkey] = fields
       end
 
-      def types(hash)
-        @options[:types] = hash
+      def type(field, type)
+        @options[:types][field] = type
       end
     end
   end

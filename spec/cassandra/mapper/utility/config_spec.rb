@@ -5,7 +5,7 @@ describe Cassandra::Mapper::Config do
     described_class.new do
       key :key1, :key2
       subkey :subkey1, :subkey2
-      types field: :integer
+      type :field, :integer
     end
   end
 
