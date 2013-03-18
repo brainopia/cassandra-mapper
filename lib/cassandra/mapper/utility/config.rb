@@ -41,6 +41,11 @@ class Cassandra::Mapper
       def type(field, type)
         @options[:types][field] = type
       end
+
+      def field(name, options={})
+        @options[:types][name] = options[:type]
+        @options[:defaults][name] = options[:default]
+      end
     end
   end
 end
