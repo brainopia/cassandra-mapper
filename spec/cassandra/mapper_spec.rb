@@ -13,7 +13,7 @@ describe Cassandra::Mapper do
   let(:table) { :common }
 
   context 'one subkey' do
-    let(:definition) do
+    let :definition do
       proc do
         key :field1
         subkey :field2
@@ -37,6 +37,24 @@ describe Cassandra::Mapper do
       payload = keys.merge(field3: field3)
       subject.insert payload
       subject.one(keys).should == payload
+    end
+  end
+
+  context 'before callback' do
+    let :definition do
+      proc do
+        key :field1
+        subkey :field2
+
+        before do |data|
+          data[:field1] = data[:field2]
+        end
+      end
+    end
+
+    it 'updates inserted data' do
+      subject.insert field2: 'value'
+      subject.one(field1: 'value').should == { field1: 'value', field2: 'value' }
     end
   end
 

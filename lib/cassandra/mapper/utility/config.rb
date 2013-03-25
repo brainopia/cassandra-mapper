@@ -1,51 +1,37 @@
-class Cassandra::Mapper
-  class Config
+class Cassandra::Mapper::Config
+  extend Cassandra::Mapper::DelegateKeys
+  delegate_keys :@options, :key, :subkey, :types, :before
+
+  def initialize(&block)
+    @options = DSL.run &block
+  end
+
+  class DSL
+    def self.run(&block)
+      new(&block).options
+    end
+
     attr_reader :options
 
     def initialize(&block)
-      @options = DSL.run &block
+      @options = { types: {}}
+      instance_eval &block
     end
 
-    def key
-      @options[:key]
+    def key(*fields)
+      @options[:key] = fields
     end
 
-    def subkey
-      @options[:subkey]
+    def subkey(*fields)
+      @options[:subkey] = fields
     end
 
-    def types
-      @options[:types]
+    def type(field, type)
+      @options[:types][field] = type
     end
 
-    class DSL
-      def self.run(&block)
-        new(&block).options
-      end
-
-      attr_reader :options
-
-      def initialize(&block)
-        @options = { types: {}}
-        instance_eval &block
-      end
-
-      def key(*fields)
-        @options[:key] = fields
-      end
-
-      def subkey(*fields)
-        @options[:subkey] = fields
-      end
-
-      def type(field, type)
-        @options[:types][field] = type
-      end
-
-      def field(name, options={})
-        @options[:types][name] = options[:type]
-        @options[:defaults][name] = options[:default]
-      end
+    def before(&block)
+      @options[:before] = block
     end
   end
 end
