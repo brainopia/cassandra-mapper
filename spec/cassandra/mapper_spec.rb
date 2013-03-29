@@ -23,20 +23,31 @@ describe Cassandra::Mapper do
       end
     end
 
-    let(:field1) { 1 }
-    let(:field2) { 2 }
-    let(:field3) { 3 }
-    let(:keys) {{ field1: field1, field2: field2 }}
+    context 'insert/get' do
+      let(:field1) { 1 }
+      let(:field2) { 2 }
+      let(:field3) { 3 }
+      let(:keys) {{ field1: field1, field2: field2 }}
 
-    it 'only keys' do
-      subject.insert keys
-      subject.one(keys).should == keys
+      it 'only keys' do
+        subject.insert keys
+        subject.one(keys).should == keys
+      end
+
+      it 'with data' do
+        payload = keys.merge(field3: field3)
+        subject.insert(payload).should == payload
+        subject.one(keys).should == payload
+      end
     end
 
-    it 'with data' do
-      payload = keys.merge(field3: field3)
-      subject.insert(payload).should == payload
-      subject.one(keys).should == payload
+    it 'each' do
+      data = [
+        { field1: 1, field2: 1, data: 'payload1' },
+        { field1: 1, field2: 2, data: 'payload2' },
+      ]
+      data.each &subject.method(:insert)
+      subject.to_enum.to_a.should == data
     end
   end
 

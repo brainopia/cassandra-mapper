@@ -15,4 +15,12 @@ class Cassandra::Mapper
   def one(keys)
     get(keys).first
   end
+
+  def each(&block)
+    keyspace.each table do |key, columns|
+      keys = key.split RequestData::KEY_SEPARATOR
+      response = ResponseData.new config, keys, columns
+      response.unpack.each &block
+    end
+  end
 end
