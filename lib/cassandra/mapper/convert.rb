@@ -56,6 +56,7 @@ class Cassandra::Mapper
     end
 
     def to_time(value)
+      raise ArgumentError, 'empty date' if value.to_s.empty?
       value.to_s
     end
 

@@ -26,4 +26,12 @@ describe Cassandra::Mapper::Convert do
       subject.from(:integer, cassandra_format) == number
     end
   end
+
+  context 'time' do
+    context 'empty' do
+      it '#to' do
+        expect { subject.to(:time, '') }.to raise_error(ArgumentError)
+      end
+    end
+  end
 end
