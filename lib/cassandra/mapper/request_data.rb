@@ -22,7 +22,8 @@ class Cassandra::Mapper
       end
     end
 
-    def query
+    def query(offset=nil)
+      return { start: offset } if offset
       return if subkeys.all? &:empty?
       { start:  composite(*subkeys),
         finish: composite(*subkeys, slice: :after) }
