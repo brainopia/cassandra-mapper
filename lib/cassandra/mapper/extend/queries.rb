@@ -1,7 +1,8 @@
 class Cassandra::Mapper
-  def insert(data)
-    data = InsertData.new config, data
+  def insert(hash)
+    data = InsertData.new config, hash
     keyspace.insert table, data.packed_keys, data.columns
+    hash
   end
 
   def get(query)

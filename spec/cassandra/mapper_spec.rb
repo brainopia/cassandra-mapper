@@ -35,7 +35,7 @@ describe Cassandra::Mapper do
 
     it 'with data' do
       payload = keys.merge(field3: field3)
-      subject.insert payload
+      subject.insert(payload).should == payload
       subject.one(keys).should == payload
     end
   end
