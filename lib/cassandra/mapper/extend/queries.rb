@@ -29,7 +29,7 @@ class Cassandra::Mapper
 
   def columns_for(request, offset=nil)
     columns = keyspace.get table, request.packed_keys, request.query(offset)
-    columns.concat make(request, columns.keys.last) if columns.size == BATCH_SIZE
+    columns.concat columns_for(request, columns.keys.last) if columns.size == BATCH_SIZE
     columns
   end
 
