@@ -33,5 +33,12 @@ describe Cassandra::Mapper::Convert do
         expect { subject.to(:time, '') }.to raise_error(ArgumentError)
       end
     end
+
+    let(:time) { Time.at((Time.now.to_f * 1000).to_i) }
+
+    it '#from' do
+      formatted = subject.to(:time, time)
+      subject.from(:time, formatted).should == time
+    end
   end
 end

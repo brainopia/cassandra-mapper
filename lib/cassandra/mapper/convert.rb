@@ -5,7 +5,8 @@ class Cassandra::Mapper
     TEXT_TYPE = 'UTF8Type'
     TYPES     = {
       uuid:     'TimeUUIDType',
-      integer:  'Int32Type'
+      integer:  'Int32Type',
+      time:     'DateType'
     }
 
     def type(symbol)
@@ -56,12 +57,13 @@ class Cassandra::Mapper
     end
 
     def to_time(value)
-      raise ArgumentError, 'empty date' if value.to_s.empty?
-      value.to_s
+      value = Time.parse value if value.is_a? String
+      value = value.to_time if value.is_a? Date
+      [(value.to_f * 1000).to_i].pack('L!>')
     end
 
     def from_time(value)
-      Time.parse value
+      Time.at(value.unpack('L!>').first.to_f / 1000)
     end
 
     def to_decimal(value)
