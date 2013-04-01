@@ -18,7 +18,6 @@ class Cassandra::Mapper
     def columns
       fields = data.empty? ? { '' => '' } : data
       fields.each_with_object({}) do |(field, value), columns|
-        next unless field
         columns[composite *subkeys, field.to_s] = value
       end
     end
@@ -41,6 +40,7 @@ class Cassandra::Mapper
     end
 
     def convert!(data)
+      data.delete_if {|_, value| value.nil? }
       data.each do |field, value|
         data[field] = Convert.to config.types[field], value
       end

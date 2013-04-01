@@ -34,7 +34,7 @@ describe Cassandra::Mapper::Convert do
       end
     end
 
-    let(:time) { Time.at((Time.now.to_f * 1000).to_i) }
+    let(:time) { Time.at((Time.now.to_f * 1000).to_i / 1000) }
 
     it '#from' do
       formatted = subject.to(:time, time)

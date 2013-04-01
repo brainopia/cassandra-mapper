@@ -39,6 +39,12 @@ describe Cassandra::Mapper do
         subject.insert(payload).should == payload
         subject.one(keys).should == payload
       end
+
+      it 'nil data field' do
+        payload = keys.merge(field3: nil, field4: nil)
+        subject.insert(payload)
+        subject.one(keys).should == keys
+      end
     end
 
     it 'each' do
