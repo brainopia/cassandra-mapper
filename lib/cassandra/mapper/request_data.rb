@@ -18,6 +18,7 @@ class Cassandra::Mapper
     def columns
       fields = data.empty? ? { '' => '' } : data
       fields.each_with_object({}) do |(field, value), columns|
+        next unless field
         columns[composite *subkeys, field.to_s] = value
       end
     end
