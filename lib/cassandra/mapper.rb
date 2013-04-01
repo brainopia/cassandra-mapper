@@ -1,7 +1,7 @@
 require 'bigdecimal'
 require 'time'
 require 'cassandra'
-Cassandra::THRIFT_DEFAULTS[:connect_timeout] = 0.2
+Cassandra::THRIFT_DEFAULTS[:connect_timeout] = 1
 
 class Cassandra::Mapper
   require_relative 'mapper/convert'
