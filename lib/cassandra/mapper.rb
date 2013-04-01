@@ -28,6 +28,10 @@ class Cassandra::Mapper
   end
 
   def keyspace
-    Thread.current["keyspace_#@keyspace"] ||= Cassandra.new "#{@keyspace}_#{env}"
+    Thread.current["keyspace_#{keyspace_name}"] ||= Cassandra.new keyspace_name
+  end
+
+  def keyspace_name
+    "#{@keyspace}_#{env}"
   end
 end
