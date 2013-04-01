@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Cassandra::Mapper do
   subject do
-    described_class.new :test_mapper, table, &definition
+    described_class.new :mapper, table, &definition
   end
 
   before do

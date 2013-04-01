@@ -1,5 +1,5 @@
 class Cassandra::Mapper
-  def self.migrate(env, schema)
+  def self.migrate
     cassandra = Cassandra.new('system')
     schema[env].each do |name, options|
       options ||= {}
@@ -7,7 +7,7 @@ class Cassandra::Mapper
       options['replication_factor'] = options.fetch('replication_factor', 1).to_s
 
       cassandra.add_keyspace Cassandra::Keyspace.new \
-        name:             name,
+        name:             "#{name}_#{env}",
         strategy_class:   strategy,
         strategy_options: options,
         cf_defs:          []

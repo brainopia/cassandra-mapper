@@ -1,4 +1,4 @@
-module Cassandra::Mapper::StoreInstances
+module Cassandra::Mapper::Utility::StoreInstances
   def self.extended(klass)
     klass.instance_variable_set :@instances, []
   end

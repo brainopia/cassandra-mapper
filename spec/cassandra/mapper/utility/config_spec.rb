@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Cassandra::Mapper::Config do
+describe Cassandra::Mapper::Utility::Config do
   subject do
     described_class.new do
       key :key1, :key2

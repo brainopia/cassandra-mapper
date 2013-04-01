@@ -1,4 +1,4 @@
-module Cassandra::Mapper::DelegateKeys
+module Cassandra::Mapper::Utility::DelegateKeys
   def delegate_keys(target, *keys)
     keys.each do |key|
       class_eval <<-RUBY

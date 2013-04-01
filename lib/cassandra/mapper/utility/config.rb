@@ -1,5 +1,5 @@
-class Cassandra::Mapper::Config
-  extend Cassandra::Mapper::DelegateKeys
+class Cassandra::Mapper::Utility::Config
+  extend Cassandra::Mapper::Utility::DelegateKeys
   delegate_keys :@options, :key, :subkey, :types, :before
 
   def initialize(&block)
