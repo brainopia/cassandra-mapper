@@ -1,8 +1,9 @@
 class Cassandra::Mapper
   def self.migrate
     cassandra = Cassandra.new('system')
-    schema[env].each do |name, options|
-      options ||= {}
+    schema[:keyspaces].each do |name|
+      options  = schema.fetch(env, {}).fetch(name, {})
+      options  = Utility.stringify_keys options
       strategy = options.delete('strategy') || 'SimpleStrategy'
       options['replication_factor'] = options.fetch('replication_factor', 1).to_s
 

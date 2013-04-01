@@ -1,7 +1,7 @@
 require 'cassandra/mapper'
 require 'yaml'
 
-Cassandra::Mapper.schema = { test: { mapper: {}}}
+Cassandra::Mapper.schema = { keyspaces: [ :mapper ]}
 Cassandra::Mapper.env    = :test
 
 begin
