@@ -20,6 +20,10 @@ module Cassandra::Mapper::Convert
     send "from_#{type}", value
   end
 
+  def round(type, value)
+    from type, to(type, value)
+  end
+
   private
 
   def to_(value)
