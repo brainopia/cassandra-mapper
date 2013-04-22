@@ -29,7 +29,8 @@ class Cassandra::Mapper
 
   def columns_for(request, offset=nil)
     columns = keyspace.get table, request.packed_keys, request.query(offset)
-    if columns and columns.size == BATCH_SIZE
+    columns ||= {}
+    if columns.size == BATCH_SIZE
       columns.merge! columns_for(request, columns.keys.last)
     end
     columns
