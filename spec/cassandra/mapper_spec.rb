@@ -42,7 +42,8 @@ describe Cassandra::Mapper do
 
       it 'nil data field' do
         payload = keys.merge(field3: nil, field4: nil)
-        subject.insert(payload)
+        converted_payload = subject.insert(payload)
+        converted_payload.should == keys
         subject.one(keys).should == keys
       end
     end

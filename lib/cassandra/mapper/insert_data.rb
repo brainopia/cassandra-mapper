@@ -12,6 +12,7 @@ class Cassandra::Mapper
 
     def converted
       @request.each_with_object({}) do |(field, value), converted|
+        next unless value
         converted[field] = Convert.round config.types[field], value
       end
     end
