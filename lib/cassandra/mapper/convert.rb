@@ -31,7 +31,7 @@ module Cassandra::Mapper::Convert
   end
 
   def from_(value)
-    value
+    value.force_encoding Encoding::UTF_8
   end
 
   def to_uuid(value)
