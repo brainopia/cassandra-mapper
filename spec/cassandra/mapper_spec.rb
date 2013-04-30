@@ -145,6 +145,13 @@ describe Cassandra::Mapper do
       end
     end
 
+    shared_examples_for :empty_string_convertable do
+      context 'empty string for text type' do
+        let(:type) { nil }
+        converts '', ''
+      end
+    end
+
     shared_examples_for :type do
       before { subject.insert data }
 
@@ -171,6 +178,7 @@ describe Cassandra::Mapper do
 
       it_behaves_like :convertable
       it_behaves_like :uuid_convertable
+      it_behaves_like :empty_string_convertable
     end
 
     context 'data' do
@@ -181,6 +189,7 @@ describe Cassandra::Mapper do
 
       it_behaves_like :convertable
       it_behaves_like :uuid_convertable
+      it_behaves_like :empty_string_convertable
     end
 
     context 'complex key' do
@@ -190,6 +199,7 @@ describe Cassandra::Mapper do
       let(:data)    {{ key: 42, field: original, data: :dummy }}
 
       it_behaves_like :convertable
+      it_behaves_like :empty_string_convertable
     end
   end
 end
