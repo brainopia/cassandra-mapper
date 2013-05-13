@@ -62,7 +62,7 @@ module Cassandra::Mapper::Convert
   def to_time(value)
     value = Time.parse value if value.is_a? String
     value = value.to_time if value.is_a? Date
-    [(value.to_f * 1000).to_i].pack('L!>')
+    [(value.to_f * 1000).to_i].pack('Q>')
   end
 
   def from_time(value)
