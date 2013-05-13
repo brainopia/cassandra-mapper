@@ -66,7 +66,7 @@ module Cassandra::Mapper::Convert
   end
 
   def from_time(value)
-    Time.at(value.unpack('L!>').first.to_f / 1000)
+    Time.at(value.unpack('Q>').first.to_f / 1000)
   end
 
   def to_decimal(value)
