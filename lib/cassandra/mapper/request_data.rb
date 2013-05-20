@@ -12,7 +12,7 @@ class Cassandra::Mapper
     end
 
     def packed_keys
-      keys.join KEY_SEPARATOR
+      keys.join(KEY_SEPARATOR).force_encoding('binary')
     end
 
     def columns
