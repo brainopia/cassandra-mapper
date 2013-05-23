@@ -15,7 +15,7 @@ class Cassandra::Mapper
   require_relative 'mapper/extend/migrate'
   require_relative 'mapper/extend/queries'
 
-  require_relative 'mapper/utility'
+  require_relative 'mapper/utility/hash'
   require_relative 'mapper/utility/delegate_keys'
   require_relative 'mapper/utility/config'
   require_relative 'mapper/utility/store_instances'

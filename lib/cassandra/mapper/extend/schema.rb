@@ -4,7 +4,7 @@ class Cassandra::Mapper
   end
 
   def self.schema=(schema)
-    @@schema = Utility.symbolize_keys schema
+    @@schema = Utility::Hash.symbolize_keys schema
   end
 
   def self.env

@@ -1,11 +1,13 @@
-module Cassandra::Mapper::Utility::StoreInstances
-  def self.extended(klass)
-    klass.instance_variable_set :@instances, []
-  end
+module Cassandra::Mapper::Utility
+  module StoreInstances
+    def self.extended(klass)
+      klass.instance_variable_set :@instances, []
+    end
 
-  attr_reader :instances
+    attr_reader :instances
 
-  def new(*)
-    super.tap {|it| @instances << it }
+    def new(*)
+      super.tap {|it| @instances << it }
+    end
   end
 end
