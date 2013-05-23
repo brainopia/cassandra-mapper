@@ -6,9 +6,17 @@ class Cassandra::Mapper::Data
     end
 
     def convert!(data)
-      config.before.call data if config.before
+      config.before.each {|it| it.call data }
       super
     end
+
+    def return!
+      converted.tap do |data|
+        config.after.each {|it| it.call data }
+      end
+    end
+
+    private
 
     def converted
       @request.each_with_object({}) do |(field, value), converted|

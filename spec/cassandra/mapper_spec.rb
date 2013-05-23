@@ -76,6 +76,22 @@ describe Cassandra::Mapper do
     end
   end
 
+  context 'after callback' do
+    let :definition do
+      proc do
+        key :field1
+        subkey :field2
+
+        type :field2, :integer
+      end
+    end
+
+    it 'allows runtime hook' do
+      subject.config.dsl.after {|data| data.should == { field1: '1', field2: 2 }}
+      subject.insert field1: 1, field2: '2'
+    end
+  end
+
   context 'conversions' do
     let :definition do
       scope = self

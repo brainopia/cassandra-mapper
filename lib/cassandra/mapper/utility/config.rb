@@ -1,21 +1,19 @@
 module Cassandra::Mapper::Utility
   class Config
     extend DelegateKeys
-    delegate_keys :@options, :key, :subkey, :types, :before
+    delegate_keys 'dsl.options', :key, :subkey, :types, :before, :after
+
+    attr_reader :dsl
 
     def initialize(&block)
-      @options = DSL.run &block
+      @dsl = DSL.new &block
     end
 
     class DSL
-      def self.run(&block)
-        new(&block).options
-      end
-
       attr_reader :options
 
       def initialize(&block)
-        @options = { types: {}}
+        @options = { types: {}, before: [], after: []}
         instance_eval &block
       end
 
@@ -32,7 +30,11 @@ module Cassandra::Mapper::Utility
       end
 
       def before(&block)
-        @options[:before] = block
+        @options[:before].push block
+      end
+
+      def after(&block)
+        @options[:after].push block
       end
     end
   end
