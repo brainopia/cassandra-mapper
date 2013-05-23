@@ -1,5 +1,5 @@
-class Cassandra::Mapper
-  class InsertData < RequestData
+class Cassandra::Mapper::Data
+  class Insert < Request
     def initialize(_config, data)
       @request = data.dup
       super
@@ -13,7 +13,7 @@ class Cassandra::Mapper
     def converted
       @request.each_with_object({}) do |(field, value), converted|
         next unless value
-        converted[field] = Convert.round config.types[field], value
+        converted[field] = Cassandra::Mapper::Convert.round config.types[field], value
       end
     end
   end

@@ -1,5 +1,5 @@
-class Cassandra::Mapper
-  class RequestData
+class Cassandra::Mapper::Data
+  class Request
     KEY_SEPARATOR = '##'
 
     attr_reader :keys, :subkeys, :data, :config
@@ -42,7 +42,7 @@ class Cassandra::Mapper
     def convert!(data)
       data.delete_if {|_, value| value.nil? }
       data.each do |field, value|
-        data[field] = Convert.to config.types[field], value
+        data[field] = Cassandra::Mapper::Convert.to config.types[field], value
       end
     end
   end

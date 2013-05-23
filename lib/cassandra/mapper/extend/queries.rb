@@ -2,15 +2,15 @@ class Cassandra::Mapper
   BATCH_SIZE = 100
 
   def insert(hash)
-    data = InsertData.new config, hash
+    data = Data::Insert.new config, hash
     keyspace.insert table, data.packed_keys, data.columns
     data.converted
   end
 
   def get(query)
-    request  = RequestData.new config, query
+    request  = Data::Request.new config, query
     columns  = columns_for request
-    response = ResponseData.new config, request.keys, columns
+    response = Data::Response.new config, request.keys, columns
     response.unpack
   end
 
@@ -37,7 +37,7 @@ class Cassandra::Mapper
   end
 
   def unpack_keys(packed_keys)
-    keys = packed_keys.split RequestData::KEY_SEPARATOR
+    keys = packed_keys.split Data::Request::KEY_SEPARATOR
     keys = Hash[config.key.zip(keys)]
     keys.each do |field, value|
       keys[field] = Convert.from config.types[field], value

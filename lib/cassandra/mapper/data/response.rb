@@ -1,5 +1,5 @@
-class Cassandra::Mapper
-  class ResponseData
+class Cassandra::Mapper::Data
+  class Response
     attr_reader :config, :key_values, :columns
 
     def initialize(config, key_values, columns)
@@ -33,7 +33,7 @@ class Cassandra::Mapper
 
     def convert!(data)
       data.each do |field, value|
-        data[field] = Convert.from config.types[field], value
+        data[field] = Cassandra::Mapper::Convert.from config.types[field], value
       end
     end
   end
