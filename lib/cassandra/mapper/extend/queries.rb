@@ -7,6 +7,12 @@ class Cassandra::Mapper
     data.return!
   end
 
+  def remove(hash)
+    data = Data::Remove.new config, hash
+    keyspace.remove table, data.packed_keys, data.columns
+    data.return!
+  end
+
   def get(query)
     request  = Data::Request.new config, query
     columns  = columns_for request

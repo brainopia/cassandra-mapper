@@ -6,13 +6,13 @@ class Cassandra::Mapper::Data
     end
 
     def convert!(data)
-      config.before.each {|it| it.call data }
+      config.before_insert.each {|it| it.call data }
       super
     end
 
     def return!
       converted.tap do |data|
-        config.after.each {|it| it.call data }
+        config.after_insert.each {|it| it.call data }
       end
     end
 

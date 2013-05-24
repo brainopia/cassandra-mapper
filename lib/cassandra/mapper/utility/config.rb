@@ -1,7 +1,8 @@
 module Cassandra::Mapper::Utility
   class Config
     extend DelegateKeys
-    delegate_keys 'dsl.options', :key, :subkey, :types, :before, :after
+    delegate_keys 'dsl.options', :key, :subkey, :types, :before_insert,
+                                 :after_insert, :after_remove, :before_remove
 
     attr_reader :dsl
 
@@ -13,7 +14,13 @@ module Cassandra::Mapper::Utility
       attr_reader :options
 
       def initialize(&block)
-        @options = { types: {}, before: [], after: []}
+        @options = {
+          types: {},
+          before_insert: [],
+          after_insert: [],
+          after_remove: [],
+          before_remove: []
+        }
         instance_eval &block
       end
 
@@ -29,12 +36,20 @@ module Cassandra::Mapper::Utility
         @options[:types][field] = type
       end
 
-      def before(&block)
-        @options[:before].push block
+      def before_insert(&block)
+        @options[:before_insert].push block
       end
 
-      def after(&block)
-        @options[:after].push block
+      def before_remove(&block)
+        @options[:before_remove].push block
+      end
+
+      def after_insert(&block)
+        @options[:after_insert].push block
+      end
+
+      def after_remove(&block)
+        @options[:after_remove].push block
       end
     end
   end

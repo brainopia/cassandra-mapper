@@ -23,7 +23,7 @@ describe Cassandra::Mapper do
       end
     end
 
-    context 'insert/get' do
+    context '.insert/.get' do
       let(:field1) { 1 }
       let(:field2) { 2 }
       let(:field3) { 3 }
@@ -48,47 +48,57 @@ describe Cassandra::Mapper do
       end
     end
 
-    it 'each' do
-      data = [
-        { field1: 1, field2: 1, data: 'payload1' },
-        { field1: 1, field2: 2, data: 'payload2' },
-      ]
-      data.each &subject.method(:insert)
-      subject.to_enum.to_a.should == data
-    end
-  end
+    context 'various commands' do
+      let(:first) {{ field1: 1, field2: 1, data: 'payload1' }}
+      let(:second) {{ field1: 1, field2: 2, data: 'payload2' }}
+      let(:data) {[ first, second ]}
 
-  context 'before callback' do
-    let :definition do
-      proc do
-        key :field1
-        subkey :field2
+      before { data.each &subject.method(:insert) }
 
-        before do |data|
-          data[:field1] = data[:field2]
-        end
+      it '.each' do
+        subject.to_enum.to_a.should == data
+      end
+
+      it '.delete' do
+        subject.get(field1: 1).should have(2).items
+        subject.remove(first)
+        subject.get(field1: 1).should == [second]
+        subject.remove(second)
+        subject.get(field1: 1).should be_empty
       end
     end
-
-    it 'updates inserted data' do
-      subject.insert field2: 'value'
-      subject.one(field1: 'value').should == { field1: 'value', field2: 'value' }
-    end
   end
 
-  context 'after callback' do
+  context 'callbacks' do
     let :definition do
       proc do
         key :field1
         subkey :field2
-
         type :field2, :integer
       end
     end
 
-    it 'allows runtime hook' do
-      subject.config.dsl.after {|data| data.should == { field1: '1', field2: 2 }}
+    it '.before_insert' do
+      subject.config.dsl.before_insert do |data|
+        data[:field1] = data[:field2]
+      end
+      subject.insert field2: 2
+      subject.one(field1: '2').should == { field1: '2', field2: 2 }
+    end
+
+    it '.after_insert' do
+      subject.config.dsl.after_insert do |data|
+        data.should == { field1: '1', field2: 2 }
+      end
       subject.insert field1: 1, field2: '2'
+    end
+
+    it '.after_remove' do
+      subject.config.dsl.after_remove do |data|
+        data.should == { field1: '1', field2: 2 }
+      end
+      subject.insert field1: 1, field2: '2'
+      subject.remove field1: 1, field2: '2'
     end
   end
 

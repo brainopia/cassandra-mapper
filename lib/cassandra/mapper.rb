@@ -9,6 +9,7 @@ class Cassandra::Mapper
   require_relative 'mapper/convert'
   require_relative 'mapper/data/request'
   require_relative 'mapper/data/insert'
+  require_relative 'mapper/data/remove'
   require_relative 'mapper/data/response'
 
   require_relative 'mapper/extend/schema'
