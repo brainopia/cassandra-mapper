@@ -1,5 +1,5 @@
 class Cassandra::Mapper
-  BATCH_SIZE = 100
+  BATCH_SIZE = 500
 
   def insert(hash)
     data = Data::Insert.new config, hash
