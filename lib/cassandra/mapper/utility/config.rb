@@ -14,13 +14,8 @@ module Cassandra::Mapper::Utility
       attr_reader :options
 
       def initialize(&block)
-        @options = {
-          types: {},
-          before_insert: [],
-          after_insert: [],
-          after_remove: [],
-          before_remove: []
-        }
+        @options = { types: {}}
+        reset_callbacks!
         instance_eval &block
       end
 
@@ -34,6 +29,14 @@ module Cassandra::Mapper::Utility
 
       def type(field, type)
         @options[:types][field] = type
+      end
+
+      def reset_callbacks!
+        @options.merge! \
+          before_insert: [],
+          before_remove: [],
+          after_insert:  [],
+          after_remove:  []
       end
 
       def before_insert(&block)
