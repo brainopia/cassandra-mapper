@@ -13,7 +13,7 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep %r{^spec/}
   gem.require_paths = %w(lib)
 
-  gem.add_dependency 'cassandra', '~> 0.17.0'
+  gem.add_dependency 'cassandra', '~> 0.18.0'
   gem.add_dependency 'multi_json', '~> 1.0'
   gem.add_development_dependency 'rspec'
 end
