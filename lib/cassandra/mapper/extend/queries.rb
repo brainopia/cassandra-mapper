@@ -31,6 +31,10 @@ class Cassandra::Mapper
     end
   end
 
+  def all
+    to_enum.to_a
+  end
+
   private
 
   def columns_for(request, offset=nil)
