@@ -5,14 +5,8 @@ describe Cassandra::Mapper do
     described_class.new :mapper, table, &definition
   end
 
-  before do
-    subject.keyspace.drop_column_family table.to_s rescue nil
-    subject.migrate
-  end
-
-  let(:table) { :common }
-
   context 'one subkey' do
+    let(:table) { :one_subkey }
     let :definition do
       proc do
         key :field1
@@ -70,6 +64,7 @@ describe Cassandra::Mapper do
   end
 
   context 'callbacks' do
+    let(:table) { :callbacks }
     let :definition do
       proc do
         key :field1
@@ -103,6 +98,8 @@ describe Cassandra::Mapper do
   end
 
   context 'conversions' do
+    let(:table) { [key, subkey, type].map {|it| Array(it).join('_') }.join }
+
     let :definition do
       scope = self
       proc do

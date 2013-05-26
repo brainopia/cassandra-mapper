@@ -1,21 +1,72 @@
 class Cassandra::Mapper
-  def self.migrate
-    cassandra = Cassandra.new('system')
-    schema[:keyspaces].each do |name|
-      options  = schema.fetch(env, {}).fetch(name, {})
-      options  = Utility::Hash.stringify_keys options
-      strategy = options.delete('strategy') || 'SimpleStrategy'
-      options['replication_factor'] = options.fetch('replication_factor', 1).to_s
+  MigrateError = Class.new StandardError
 
-      cassandra.add_keyspace Cassandra::Keyspace.new \
-        name:             "#{name}_#{env}",
-        strategy_class:   strategy,
-        strategy_options: options,
-        cf_defs:          []
+  class << self
+    def auto_migrate
+      auto_migrate_keyspaces
+      instances.each(&:auto_migrate)
+      @auto_migrate_cf = true
+    end
+
+    def new(*)
+      super.tap {|it| it.auto_migrate if @auto_migrate_cf }
+    end
+
+    def auto_migrate_keyspaces
+      system = Cassandra.new('system')
+      keyspaces = system.send(:client).describe_keyspaces
+
+      keyspaces_schema.each do |keyspace|
+        found = keyspaces.find {|it| it.name == keyspace.name }
+        if found
+          unless schema_match? found, keyspace
+            raise MigrateError, "#{keyspace.name} exists and not matches schema"
+          end
+        else
+          system.add_keyspace keyspace
+        end
+      end
+    end
+
+    def keyspaces_schema
+      schema[:keyspaces].map do |name|
+        options  = schema.fetch(env, {}).fetch(name, {})
+        options  = Utility::Hash.stringify_keys options
+        strategy = options.delete('strategy') || 'SimpleStrategy'
+        options['replication_factor'] = options.fetch('replication_factor', 1).to_s
+
+        Cassandra::Keyspace.new \
+          name:             "#{name}_#{env}",
+          strategy_class:   strategy,
+          strategy_options: options,
+          cf_defs:          []
+      end
+    end
+
+    def schema_match?(actual, blueprint)
+      actual.strategy_class.include?(blueprint.strategy_class) and
+      actual.strategy_options == blueprint.strategy_options
     end
   end
 
-  def migrate
+  def auto_migrate
+    blueprint = cf_schema
+    actual = keyspace.column_families[blueprint.name]
+    if actual
+      comparator = actual.comparator_type.gsub('org.apache.cassandra.db.marshal.', '')
+      unless comparator == blueprint.comparator_type
+        raise MigrateError, <<-ERROR
+          #{actual.name} exists and not matches comparator.
+          actual: #{comparator}
+          expected: #{blueprint.comparator_type}
+        ERROR
+      end
+    else
+      keyspace.add_column_family blueprint
+    end
+  end
+
+  def cf_schema
     subkey_types = config.subkey.map do |it|
       Convert.type config.types[it]
     end
@@ -23,7 +74,7 @@ class Cassandra::Mapper
     # field subkey
     subkey_types.push Convert::TEXT_TYPE
 
-    keyspace.add_column_family Cassandra::ColumnFamily.new \
+    Cassandra::ColumnFamily.new \
       keyspace:        keyspace.keyspace,
       name:            table,
       comparator_type: "CompositeType(#{subkey_types.join ','})"
