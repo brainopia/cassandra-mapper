@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name          = 'cassandra-mapper'
-  gem.version       = '0.2'
+  gem.version       = '0.3'
   gem.authors       = 'brainopia'
   gem.email         = 'brainopia@evilmartians.com'
   gem.homepage      = 'https://github.com/brainopia/cassandra-mapper'
