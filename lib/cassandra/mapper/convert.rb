@@ -92,4 +92,12 @@ module Cassandra::Mapper::Convert
   def from_float(value)
     value.to_f
   end
+
+  def to_yaml(value)
+    YAML.dump value
+  end
+
+  def from_yaml(value)
+    YAML.load value
+  end
 end

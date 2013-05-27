@@ -173,9 +173,16 @@ describe Cassandra::Mapper do
     end
 
     shared_examples_for :empty_string_convertable do
-      context 'empty string for text type' do
+      context 'edge case' do
         let(:type) { nil }
-        converts '', ''
+        converts 'empty string', ''
+      end
+    end
+
+    shared_examples_for :yaml do
+      context 'yaml' do
+        let(:type) { :yaml }
+        converts 'rich data', date: Time.now
       end
     end
 
