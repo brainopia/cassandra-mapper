@@ -5,6 +5,10 @@ describe Cassandra::Mapper do
     described_class.new :mapper, table, &definition
   end
 
+  before do
+    subject.keyspace.truncate! subject.table
+  end
+
   context 'one subkey' do
     let(:table) { :one_subkey }
     let :definition do

@@ -2,6 +2,12 @@ class Cassandra::Mapper
   MigrateError = Class.new StandardError
 
   class << self
+    def force_migrate
+      auto_migrate_keyspaces
+      instances.each(&:force_migrate)
+      @force_migrate_cf = true
+    end
+
     def auto_migrate
       auto_migrate_keyspaces
       instances.each(&:auto_migrate)
@@ -9,7 +15,10 @@ class Cassandra::Mapper
     end
 
     def new(*)
-      super.tap {|it| it.auto_migrate if @auto_migrate_cf }
+      super.tap do |it|
+        it.auto_migrate  if @auto_migrate_cf
+        it.force_migrate if @force_migrate_cf
+      end
     end
 
     def auto_migrate_keyspaces
@@ -49,18 +58,29 @@ class Cassandra::Mapper
     end
   end
 
+  def force_migrate
+    migrate do
+      keyspace.drop_column_family cf_schema.name
+      keyspace.add_column_family cf_schema
+    end
+  end
+
   def auto_migrate
+    migrate do
+      raise MigrateError, <<-ERROR
+        #{actual.name} exists and not matches comparator.
+        actual: #{comparator}
+        expected: #{blueprint.comparator_type}
+      ERROR
+    end
+  end
+
+  def migrate
     blueprint = cf_schema
     actual = keyspace.column_families[blueprint.name]
     if actual
       comparator = actual.comparator_type.gsub('org.apache.cassandra.db.marshal.', '')
-      unless comparator == blueprint.comparator_type
-        raise MigrateError, <<-ERROR
-          #{actual.name} exists and not matches comparator.
-          actual: #{comparator}
-          expected: #{blueprint.comparator_type}
-        ERROR
-      end
+      yield unless comparator == blueprint.comparator_type
     else
       keyspace.add_column_family blueprint
     end
