@@ -13,15 +13,15 @@ class Cassandra::Mapper
     data.return!
   end
 
-  def get(query)
+  def get(query, slice={})
     request  = Data::Request.new config, query
-    columns  = columns_for request
+    columns  = columns_for request, slice
     response = Data::Response.new config, request.keys, columns
     response.unpack
   end
 
-  def one(keys)
-    get(keys).first
+  def one(keys, slice={})
+    get(keys, slice).first
   end
 
   def each(&block)
@@ -37,11 +37,12 @@ class Cassandra::Mapper
 
   private
 
-  def columns_for(request, offset=nil)
-    columns = keyspace.get table, request.packed_keys, request.query(offset)
+  def columns_for(request, slice)
+    columns = keyspace.get table, request.packed_keys, request.query(slice)
     columns ||= {}
     if columns.size == BATCH_SIZE
-      columns.merge! columns_for(request, columns.keys.last)
+      slice[:start] = [*columns.keys.last.parts, slice: :after]
+      columns.merge! columns_for(request, slice)
     end
     columns
   end
