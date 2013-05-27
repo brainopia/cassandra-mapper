@@ -14,7 +14,7 @@ module Cassandra::Mapper::Utility
       attr_reader :options
 
       def initialize(&block)
-        @options = { types: {}}
+        @options = { types: {}, subkey: [] }
         reset_callbacks!
         instance_eval &block
       end

@@ -36,7 +36,7 @@ class Cassandra::Mapper::Data
     end
 
     def extract!(option)
-      config.send(option).map {|it| data.delete(it).to_s }
+      config.send(option).to_a.map {|it| data.delete(it).to_s }
     end
 
     def convert!(data)
