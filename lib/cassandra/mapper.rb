@@ -38,4 +38,8 @@ class Cassandra::Mapper
   def keyspace_name
     "#{@keyspace}_#{env}"
   end
+
+  def keyspace_base
+    @keyspace
+  end
 end
