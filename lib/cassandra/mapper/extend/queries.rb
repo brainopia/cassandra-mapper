@@ -20,8 +20,8 @@ class Cassandra::Mapper
     response.unpack
   end
 
-  def one(keys, slice={})
-    get(keys, slice).first
+  def one(keys, filter={})
+    get(keys, filter).first
   end
 
   def each(&block)
@@ -37,12 +37,12 @@ class Cassandra::Mapper
 
   private
 
-  def columns_for(request, slice)
-    columns = keyspace.get table, request.packed_keys, request.query(slice)
+  def columns_for(request, filter)
+    columns = keyspace.get table, request.packed_keys, request.query(filter)
     columns ||= {}
     if columns.size == BATCH_SIZE
-      slice[:start] = [*columns.keys.last.parts, slice: :after]
-      columns.merge! columns_for(request, slice)
+      filter[:start] = { slice: :after, subkey: columns.keys.last }
+      columns.merge! columns_for(request, filter)
     end
     columns
   end

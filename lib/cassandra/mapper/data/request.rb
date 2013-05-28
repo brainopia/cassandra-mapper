@@ -22,12 +22,12 @@ class Cassandra::Mapper::Data
       end
     end
 
-    def query(slice)
+    def query(filter)
       case
-      when !slice.empty?
-        slice[:start]  &&= composite *slice[:start]
-        slice[:finish] &&= composite *slice[:finish]
-        slice
+      when !filter.empty?
+        filter[:start]  &&= create_filter filter[:start]
+        filter[:finish] &&= create_filter filter[:finish]
+        filter
       when !subkeys.all?(&:empty?)
         { start:  composite(*subkeys),
           finish: composite(*subkeys, slice: :after) }
@@ -35,6 +35,14 @@ class Cassandra::Mapper::Data
     end
 
     private
+
+    def create_filter(filter)
+      slice     = filter.delete :slice
+      composite = filter.delete :subkey
+
+      parts = composite ? composite.parts : extract!(:subkey, convert!(filter))
+      composite *parts, slice: slice
+    end
 
     def composite(*args)
       Cassandra::Composite.new *args
