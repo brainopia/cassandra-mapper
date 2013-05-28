@@ -7,6 +7,9 @@ Cassandra::THRIFT_DEFAULTS.merge! \
   connect_timeout: 1, timeout: 1
 
 class Cassandra::Mapper
+  require_relative 'extensions/time'
+  require_relative 'extensions/simple_uuid'
+
   require_relative 'mapper/convert'
   require_relative 'mapper/data/request'
   require_relative 'mapper/data/insert'
