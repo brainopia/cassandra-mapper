@@ -2,15 +2,18 @@ module Cassandra::Mapper::Convert
   extend self
 
   TEXT_TYPE = 'UTF8Type'
-  MAX       = { time: Time.new(2038) }
-  TYPES     = {
+  MAX = {
+    time: Time.new(2038),
+    integer: 4611686018427387903
+  }
+  TYPES = {
     uuid:     'TimeUUIDType',
     integer:  'Int32Type',
     time:     'DateType'
   }
 
   def max(type)
-    MAX[type]
+    MAX[type] or raise ArgumentError, "unsupported type: #{type}"
   end
 
   def type(symbol)
