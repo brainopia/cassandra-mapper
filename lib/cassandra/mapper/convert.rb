@@ -4,7 +4,7 @@ module Cassandra::Mapper::Convert
   TEXT_TYPE = 'UTF8Type'
   MAX = {
     time: Time.new(2038),
-    integer: 4611686018427387903
+    integer: 2147483647
   }
   TYPES = {
     uuid:     'TimeUUIDType',
