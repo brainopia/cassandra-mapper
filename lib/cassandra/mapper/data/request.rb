@@ -37,10 +37,10 @@ class Cassandra::Mapper::Data
     private
 
     def create_filter(filter)
-      slice     = filter.delete :slice
-      composite = filter.delete :subkey
+      slice     = filter[:slice]
+      composite = filter[:subkey]
 
-      parts = composite ? composite.parts : extract!(:subkey, convert!(filter))
+      parts = composite ? composite.parts : extract!(:subkey, convert!(filter.dup))
       composite(*parts, slice: slice)
     end
 
@@ -49,7 +49,11 @@ class Cassandra::Mapper::Data
     end
 
     def extract!(option, from=data)
-      config.send(option).to_a.map {|it| from.delete(it).to_s }
+      extracted = config.send(option).to_a.map {|it| from.delete(it) }
+      if option == :subkey
+        extracted.pop until extracted.last or extracted.empty?
+      end
+      extracted.map(&:to_s)
     end
 
     def convert!(data)

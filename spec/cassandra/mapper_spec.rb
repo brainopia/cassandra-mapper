@@ -101,6 +101,60 @@ describe Cassandra::Mapper do
     end
   end
 
+  context 'queries' do
+    let(:table) { 'queries' }
+
+    let :definition do
+      proc do
+        key :key
+        subkey :s1, :s2
+      end
+    end
+
+    let(:records) do
+      [
+        keys(:a, :a).merge(d1: 'value'),
+        keys(:b, :a).merge(d1: 'content', d2: 'value'),
+        keys(:b, :b).merge(d2: 'some'),
+        keys(:c, :a)
+      ]
+    end
+
+    def keys(s1=nil, s2=nil)
+      { key: 'key', s1: s1 && s1.to_s, s2: s2 && s2.to_s }
+    end
+
+    def record(s1, s2)
+      records.find {|it| it[:s1] == s1.to_s and it[:s2] == s2.to_s }
+    end
+
+    before do
+      records.each do |data|
+        subject.insert data.merge key: 'key'
+      end
+    end
+
+    it 'by all subkeys' do
+      results = subject.get keys(:b, :a)
+      results.should == [record(:b, :a)]
+    end
+
+    it 'by first subkey' do
+      results = subject.get keys(:b)
+      results.should == [record(:b, :a), record(:b, :b)]
+    end
+
+    it 'start' do
+      results = subject.get keys, start: keys(:b)
+      results.should == [record(:b, :a), record(:b, :b), record(:c, :a)]
+    end
+
+    it 'start after' do
+      results = subject.get keys, start: keys(:b).merge(slice: :after)
+      results.should == [record(:c, :a)]
+    end
+  end
+
   context 'conversions' do
     let(:table) { [key, subkey, type].map {|it| Array(it).join('_') }.join }
 

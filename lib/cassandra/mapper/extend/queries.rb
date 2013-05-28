@@ -38,7 +38,7 @@ class Cassandra::Mapper
   private
 
   def columns_for(request, filter)
-    columns = keyspace.get table, request.packed_keys, request.query(filter)
+    columns = keyspace.get table, request.packed_keys, request.query(filter.dup)
     columns ||= {}
     if columns.size == BATCH_SIZE
       filter[:start] = { slice: :after, subkey: columns.keys.last }
