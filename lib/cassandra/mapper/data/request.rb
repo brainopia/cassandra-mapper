@@ -48,8 +48,8 @@ class Cassandra::Mapper::Data
       Cassandra::Composite.new *args
     end
 
-    def extract!(option)
-      config.send(option).to_a.map {|it| data.delete(it).to_s }
+    def extract!(option, from=data)
+      config.send(option).to_a.map {|it| from.delete(it).to_s }
     end
 
     def convert!(data)
