@@ -153,6 +153,17 @@ describe Cassandra::Mapper do
       results = subject.get keys, start: keys(:b).merge(slice: :after)
       results.should == [record(:c, :a)]
     end
+
+    it 'start reversed' do
+      results = subject.get keys, start: keys(:b), reversed: true
+      results.should == [record(:a, :a)]
+    end
+
+    it 'start reversed after' do
+      results = subject.get keys, start: keys(:b).merge(slice: :after), reversed: true
+      results.should == [record(:b, :b), record(:b, :a), record(:a, :a)]
+    end
+
   end
 
   context 'conversions' do
