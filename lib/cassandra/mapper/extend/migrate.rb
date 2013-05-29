@@ -66,10 +66,10 @@ class Cassandra::Mapper
   end
 
   def auto_migrate
-    migrate do
+    migrate do |actual, blueprint|
       raise MigrateError, <<-ERROR
         #{actual.name} exists and not matches comparator.
-        actual: #{comparator}
+        actual: #{actual.comparator_type}
         expected: #{blueprint.comparator_type}
       ERROR
     end
@@ -80,7 +80,7 @@ class Cassandra::Mapper
     actual = keyspace.column_families[blueprint.name]
     if actual
       comparator = actual.comparator_type.gsub('org.apache.cassandra.db.marshal.', '')
-      yield unless comparator == blueprint.comparator_type
+      yield actual, blueprint unless comparator == blueprint.comparator_type
     else
       keyspace.add_column_family blueprint
     end
