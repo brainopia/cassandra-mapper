@@ -31,7 +31,7 @@ class Cassandra::Mapper
 
   def initialize(keyspace, table, &block)
     @keyspace = keyspace.to_s
-    @table    = table.to_s
+    @table    = table.to_s[0...48]
     @config   = Utility::Config.new(&block)
   end
 
