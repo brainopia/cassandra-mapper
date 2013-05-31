@@ -64,6 +64,11 @@ describe Cassandra::Mapper do
         subject.remove(second)
         subject.get(field1: 1).should be_empty
       end
+
+      it '.delete by key' do
+        subject.remove field1: 1
+        subject.get(field1: 1).should be_empty
+      end
     end
   end
 

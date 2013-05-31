@@ -6,7 +6,7 @@ class Cassandra::Mapper::Data
     end
 
     def columns
-      super.keys
+      super.keys unless subkeys.empty? and data.empty?
     end
 
     def return!
