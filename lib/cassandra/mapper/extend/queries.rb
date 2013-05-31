@@ -51,7 +51,7 @@ class Cassandra::Mapper
     keys = packed_keys.split Data::Request::KEY_SEPARATOR
     keys = Hash[config.key.zip(keys)]
     keys.each do |field, value|
-      keys[field] = Convert.from config.types[field], value
+      keys[field] = Convert.from config.type(field), value
     end
   end
 end

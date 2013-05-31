@@ -88,7 +88,7 @@ class Cassandra::Mapper
 
   def cf_schema
     subkey_types = config.subkey.map do |it|
-      Convert.type config.types[it]
+      Convert.type config.type(it)
     end
 
     # field subkey

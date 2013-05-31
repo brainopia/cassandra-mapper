@@ -10,6 +10,10 @@ module Cassandra::Mapper::Utility
       @dsl = DSL.new &block
     end
 
+    def type(field)
+      types[field.to_sym]
+    end
+
     class DSL
       attr_reader :options
 
@@ -28,7 +32,7 @@ module Cassandra::Mapper::Utility
       end
 
       def type(field, type)
-        @options[:types][field] = type
+        @options[:types][field.to_sym] = type
       end
 
       def reset_callbacks!

@@ -33,7 +33,7 @@ class Cassandra::Mapper::Data
 
     def convert!(data)
       data.each do |field, value|
-        data[field] = Cassandra::Mapper::Convert.from config.types[field], value
+        data[field] = Cassandra::Mapper::Convert.from config.type(field), value
       end
     end
   end

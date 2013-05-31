@@ -59,7 +59,7 @@ class Cassandra::Mapper::Data
     def convert!(data)
       data.delete_if {|_, value| value.nil? }
       data.each do |field, value|
-        data[field] = Cassandra::Mapper::Convert.to config.types[field], value
+        data[field] = Cassandra::Mapper::Convert.to config.type(field), value
       end
     end
   end

@@ -21,7 +21,7 @@ class Cassandra::Mapper::Data
     def converted
       @request.each_with_object({}) do |(field, value), converted|
         next unless value
-        converted[field] = Cassandra::Mapper::Convert.round config.types[field], value
+        converted[field] = Cassandra::Mapper::Convert.round config.type(field), value
       end
     end
   end
