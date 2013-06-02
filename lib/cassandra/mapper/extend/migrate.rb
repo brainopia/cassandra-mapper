@@ -22,7 +22,7 @@ class Cassandra::Mapper
     end
 
     def auto_migrate_keyspaces
-      system = Cassandra.new('system', SERVER)
+      system = Cassandra.new('system', server)
       keyspaces = system.send(:client).describe_keyspaces
 
       keyspaces_schema.each do |keyspace|

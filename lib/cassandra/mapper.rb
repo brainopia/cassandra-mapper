@@ -7,8 +7,6 @@ Cassandra::THRIFT_DEFAULTS.merge! \
   connect_timeout: 1, timeout: 1
 
 class Cassandra::Mapper
-  SERVER = '127.0.0.1:9160'
-
   require_relative 'extensions/time'
   require_relative 'extensions/simple_uuid'
 
@@ -18,6 +16,7 @@ class Cassandra::Mapper
   require_relative 'mapper/data/remove'
   require_relative 'mapper/data/response'
 
+  require_relative 'mapper/extend/server'
   require_relative 'mapper/extend/schema'
   require_relative 'mapper/extend/migrate'
   require_relative 'mapper/extend/queries'
@@ -38,7 +37,7 @@ class Cassandra::Mapper
   end
 
   def keyspace
-    Thread.current["keyspace_#{keyspace_name}"] ||= Cassandra.new keyspace_name, SERVER
+    Thread.current["keyspace_#{keyspace_name}"] ||= Cassandra.new keyspace_name, server
   end
 
   def keyspace_name
