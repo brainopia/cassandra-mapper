@@ -7,6 +7,8 @@ Cassandra::THRIFT_DEFAULTS.merge! \
   connect_timeout: 1, timeout: 1
 
 class Cassandra::Mapper
+  SERVER = '127.0.0.1:9160'
+
   require_relative 'extensions/time'
   require_relative 'extensions/simple_uuid'
 
@@ -36,7 +38,7 @@ class Cassandra::Mapper
   end
 
   def keyspace
-    Thread.current["keyspace_#{keyspace_name}"] ||= Cassandra.new keyspace_name
+    Thread.current["keyspace_#{keyspace_name}"] ||= Cassandra.new keyspace_name, SERVER
   end
 
   def keyspace_name
