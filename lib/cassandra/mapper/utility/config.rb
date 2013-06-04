@@ -4,14 +4,17 @@ module Cassandra::Mapper::Utility
     delegate_keys 'dsl.options', :key, :subkey, :types, :before_insert,
                                  :after_insert, :after_remove, :before_remove
 
-    attr_reader :dsl
-
     def initialize(&block)
       @dsl = DSL.new &block
     end
 
     def type(field)
       types[field.to_sym]
+    end
+
+    def dsl(&block)
+      @dsl.instance_eval(&block) if block
+      @dsl
     end
 
     class DSL
