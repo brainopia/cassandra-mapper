@@ -31,6 +31,8 @@ class Cassandra::Mapper::Data
       when !subkeys.all?(&:empty?)
         { start:  composite(*subkeys),
           finish: composite(*subkeys, slice: :after) }
+      else
+        {}
       end
     end
 
