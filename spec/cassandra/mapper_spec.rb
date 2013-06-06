@@ -207,6 +207,8 @@ describe Cassandra::Mapper do
         converts 'integer', 2, '2'
         converts 'string', 'string'
         converts 'utf-8', 'символы'
+        converts 'long utf-8 (64 symbols)',
+          'аааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааааа'
       end
 
       context 'integer type' do
