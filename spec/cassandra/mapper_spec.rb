@@ -206,6 +206,7 @@ describe Cassandra::Mapper do
         let(:type) { nil }
         converts 'integer', 2, '2'
         converts 'string', 'string'
+        converts 'utf-8', 'символы'
       end
 
       context 'integer type' do
