@@ -6,9 +6,6 @@ rvm:
   - rbx-19mode
 services:
   - cassandra
-matrix:
-  allow_failures:
-    - rvm: rbx-19mode
 before_install:
   - sudo sh -c "echo 'JVM_OPTS=\"\${JVM_OPTS} -Djava.net.preferIPv4Stack=false\"' >> /usr/local/cassandra/conf/cassandra-env.sh"
   - sudo service cassandra start
