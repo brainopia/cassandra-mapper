@@ -1,5 +1,6 @@
 class Cassandra::Mapper
-  BATCH_SIZE = 500
+  BATCH_SIZE   = 500
+  MAX_ONE_SIZE = 10
 
   def insert(hash)
     data = Data::Insert.new config, hash
@@ -25,7 +26,7 @@ class Cassandra::Mapper
   end
 
   def one(keys, filter={})
-    get(keys, filter).first
+    get(keys, { count: MAX_ONE_SIZE }.merge(filter)).first
   end
 
   def each(&block)
