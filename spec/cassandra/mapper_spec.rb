@@ -187,6 +187,11 @@ describe Cassandra::Mapper do
       results = subject.get keys, start: {}
       results.should == records
     end
+
+    it 'should select all fields when start contains just slice' do
+      results = subject.get keys, start: { slice: :after }
+      results.should == records
+    end
   end
 
   context 'conversions' do

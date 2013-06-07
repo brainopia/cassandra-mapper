@@ -43,7 +43,7 @@ class Cassandra::Mapper::Data
       composite = filter[:subkey]
 
       parts = composite ? composite.parts : extract!(:subkey, convert!(filter.dup))
-      composite(*parts, slice: slice)
+      composite(*parts, slice: slice) unless parts.empty?
     end
 
     def composite(*args)
