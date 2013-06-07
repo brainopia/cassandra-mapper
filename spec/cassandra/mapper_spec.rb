@@ -182,6 +182,11 @@ describe Cassandra::Mapper do
       results = subject.get keys, count: 2, batch_size: 2
       results.should == [record(:a, :a)]
     end
+
+    it 'should select all fields when start is an empty hash' do
+      results = subject.get keys, start: {}
+      results.should == records
+    end
   end
 
   context 'conversions' do
