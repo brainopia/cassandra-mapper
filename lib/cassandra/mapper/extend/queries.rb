@@ -14,10 +14,14 @@ class Cassandra::Mapper
   end
 
   def get(query, slice={})
-    request  = Data::Request.new config, query
-    columns  = columns_for request, slice
+    request = Data::Request.new config, query
+    columns, drop_last = columns_for request, slice
+
     response = Data::Response.new config, request.keys, columns
-    response.unpack
+    records  = response.unpack
+
+    records.pop if drop_last
+    records
   end
 
   def one(keys, filter={})
@@ -38,14 +42,38 @@ class Cassandra::Mapper
   private
 
   def columns_for(request, filter)
-    query = request.query(filter.dup).merge! count: BATCH_SIZE
-    columns = keyspace.get table, request.packed_keys, query
-    columns ||= {}
-    if columns.size == BATCH_SIZE
-      filter[:start] = { slice: :after, subkey: columns.keys.last }
-      columns.merge! columns_for(request, filter)
+    count = filter.delete(:count)
+    batch = filter.delete(:batch_size) || count || BATCH_SIZE
+
+    columns   = {}
+    drop_last = false
+
+   loop do
+      result      = columns_get request, filter, batch
+      result_size = result.size
+
+      columns.merge! result
+
+      break if result_size < batch
+
+      if count
+        if result_size >= count
+          drop_last = true
+          break
+        else
+          count -= result_size
+        end
+      end
+
+      filter[:start] = { slice: :after, subkey: result.keys.last }
     end
-    columns
+
+    return columns, drop_last
+  end
+
+  def columns_get(request, filter, batch)
+    query = request.query(filter.dup).merge! count: batch
+    keyspace.get(table, request.packed_keys, query) || {}
   end
 
   def unpack_keys(packed_keys)

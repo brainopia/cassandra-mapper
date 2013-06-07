@@ -178,6 +178,10 @@ describe Cassandra::Mapper do
       results.should == [record(:b, :b), record(:b, :a), record(:a, :a)]
     end
 
+    it 'should support count and batch size' do
+      results = subject.get keys, count: 2, batch_size: 2
+      results.should == [record(:a, :a)]
+    end
   end
 
   context 'conversions' do
