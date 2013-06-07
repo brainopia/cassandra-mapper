@@ -192,6 +192,11 @@ describe Cassandra::Mapper do
       results = subject.get keys, start: { slice: :after }
       results.should == records
     end
+
+    it 'should support string query keys' do
+      results = subject.get 'key' => 'key'
+      results.should == records
+    end
   end
 
   context 'conversions' do

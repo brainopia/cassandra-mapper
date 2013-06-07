@@ -51,10 +51,14 @@ class Cassandra::Mapper::Data
     end
 
     def extract!(option, from=data)
-      extracted = config.send(option).to_a.map {|it| from.delete(it) }
+      extracted = config.send(option).to_a.map do |it|
+        from.delete(it) || from.delete(it.to_s)
+      end
+
       if option == :subkey
         extracted.pop until extracted.last or extracted.empty?
       end
+
       extracted.map(&:to_s)
     end
 
