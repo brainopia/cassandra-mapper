@@ -87,11 +87,11 @@ module Cassandra::Mapper::Convert
   end
 
   def to_json(value)
-    MultiJson.dump value
+    JSON.dump value
   end
 
   def from_json(value)
-    MultiJson.load value
+    JSON.load value
   end
 
   def to_float(value)

@@ -1,5 +1,6 @@
 require 'bigdecimal'
 require 'yaml'
+require 'json'
 require 'time'
 require 'cassandra'
 
