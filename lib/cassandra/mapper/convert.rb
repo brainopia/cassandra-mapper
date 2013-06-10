@@ -44,7 +44,7 @@ module Cassandra::Mapper::Convert
 
   def to_uuid(value)
     if value.is_a? String
-      value = Time.parse time
+      value = Time.parse value
     end
 
     if value.is_a? Time
