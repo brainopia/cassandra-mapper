@@ -43,9 +43,20 @@ module Cassandra::Mapper::Convert
   end
 
   def to_uuid(value)
-    value = Time.parse value if value.is_a? String
-    value = value.uuid if value.is_a?(Time) and value.uuid
-    SimpleUUID::UUID.new(value).to_s
+    if value.is_a? String
+      value = Time.parse time
+    end
+
+    if value.is_a? Time
+      value.uuid ||= SimpleUUID::UUID.new value
+      value = value.uuid
+    end
+
+    unless value.is_a? SimpleUUID::UUID
+      raise ArgumentError, value.inspect
+    end
+
+    value.to_s
   end
 
   def from_uuid(value)

@@ -75,10 +75,10 @@ describe Cassandra::Mapper do
 
     context 'wide row' do
       it 'transparently read' do
-        5_000.times do |i|
+        1000.times do |i|
           subject.insert field1: 42, field2: i + 1
         end
-        subject.get(field1: 42).should have(5_000).items
+        subject.get(field1: 42).should have(1000).items
       end
     end
   end
