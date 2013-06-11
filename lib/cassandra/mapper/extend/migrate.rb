@@ -49,7 +49,7 @@ class Cassandra::Mapper
           name:             "#{name}_#{env}",
           strategy_class:   strategy,
           strategy_options: options,
-          durable_writes:   durable.to_s,
+          durable_writes:   durable,
           cf_defs:          []
       end
     end
