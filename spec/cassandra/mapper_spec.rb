@@ -46,6 +46,27 @@ describe Cassandra::Mapper do
         converted_payload.should == keys
         subject.one(keys).should == keys
       end
+
+      it 'nil key' do
+        expect {
+          subject.insert field1: nil, field2: field2, field3: field3
+        }.to raise_exception
+      end
+    end
+
+    context 'complex key' do
+      let :definition do
+        proc do
+          key :field1, :field2
+          subkey :field3
+        end
+      end
+
+      it 'nil key' do
+        expect {
+          subject.insert field1: nil, field2: 'present', field3: 'present'
+        }.to raise_exception
+      end
     end
 
     context 'various commands' do

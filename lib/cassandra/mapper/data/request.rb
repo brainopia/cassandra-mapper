@@ -59,6 +59,10 @@ class Cassandra::Mapper::Data
         extracted.pop until extracted.last or extracted.empty?
       end
 
+      if extracted.index(nil)
+        raise ArgumentError, "#{option} contains nil: #{extracted.inspect}"
+      end
+
       extracted.map(&:to_s)
     end
 
