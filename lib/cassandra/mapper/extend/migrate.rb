@@ -42,12 +42,14 @@ class Cassandra::Mapper
         options  = schema.fetch(env, {}).fetch(name, {})
         options  = Utility::Hash.stringify_keys options
         strategy = options.delete('strategy') || 'SimpleStrategy'
+        durable  = options.delete('durable_writes') || true
         options['replication_factor'] = options.fetch('replication_factor', 1).to_s
 
         Cassandra::Keyspace.new \
           name:             "#{name}_#{env}",
           strategy_class:   strategy,
           strategy_options: options,
+          durable_writes:   durable.to_s,
           cf_defs:          []
       end
     end
