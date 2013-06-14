@@ -42,7 +42,7 @@ class Cassandra::Mapper
         options  = schema.fetch(env, {}).fetch(name, {})
         options  = Utility::Hash.stringify_keys options
         strategy = options.delete('strategy') || 'SimpleStrategy'
-        durable  = options.delete('durable_writes') != false
+        durable  = options.delete('durable_writes') != false && name != :test
         options['replication_factor'] = options.fetch('replication_factor', 1).to_s
 
         Cassandra::Keyspace.new \
