@@ -15,6 +15,16 @@ class Cassandra::Mapper
     @@env = env.to_sym
   end
 
+  def self.keyspaces
+    schema[:keyspaces].map do |name|
+      Cassandra.new name
+    end
+  end
+
+  def self.clear!
+    keyspaces.each(&:clear_keyspace!)
+  end
+
   def env
     @@env
   end
