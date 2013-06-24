@@ -9,7 +9,8 @@ module Cassandra::Mapper::Convert
   TYPES = {
     uuid:     'TimeUUIDType',
     integer:  'Int32Type',
-    time:     'DateType'
+    time:     'DateType',
+    marshal:  'BytesType'
   }
 
   def max(type)
