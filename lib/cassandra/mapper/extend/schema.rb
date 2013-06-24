@@ -17,7 +17,7 @@ class Cassandra::Mapper
 
   def self.keyspaces
     schema[:keyspaces].map do |name|
-      Cassandra.new "#{name}_#{env}"
+      Cassandra.new "#{name}_#{env}", server
     end
   end
 
