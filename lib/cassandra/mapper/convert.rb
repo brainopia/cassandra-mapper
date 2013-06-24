@@ -120,4 +120,12 @@ module Cassandra::Mapper::Convert
   def from_yaml(value)
     YAML.load value
   end
+
+  def to_marshal(value)
+    Marshal.dump value
+  end
+
+  def from_marshal(value)
+    Marshal.load value
+  end
 end

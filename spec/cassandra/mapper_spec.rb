@@ -303,9 +303,14 @@ describe Cassandra::Mapper do
       end
     end
 
-    shared_examples_for :yaml do
+    shared_examples_for :serialization do
       context 'yaml' do
         let(:type) { :yaml }
+        converts 'rich data', date: Time.now
+      end
+
+      context 'marshal' do
+        let(:type) { :marshal }
         converts 'rich data', date: Time.now
       end
     end
@@ -348,6 +353,7 @@ describe Cassandra::Mapper do
       it_behaves_like :convertable
       it_behaves_like :uuid_convertable
       it_behaves_like :empty_string_convertable
+      it_behaves_like :serialization
     end
 
     context 'complex key' do
