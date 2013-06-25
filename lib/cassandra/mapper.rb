@@ -2,6 +2,7 @@ require 'bigdecimal'
 require 'yaml'
 require 'json'
 require 'time'
+require 'base64'
 require 'cassandra'
 
 Cassandra::THRIFT_DEFAULTS.merge! \

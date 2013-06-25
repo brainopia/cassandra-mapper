@@ -123,10 +123,10 @@ module Cassandra::Mapper::Convert
   end
 
   def to_marshal(value)
-    Marshal.dump value
+    Base64.encode64 Marshal.dump value
   end
 
   def from_marshal(value)
-    Marshal.load value
+    Marshal.load Base64.decode64 value
   end
 end
