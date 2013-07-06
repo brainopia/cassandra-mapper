@@ -95,11 +95,18 @@ describe Cassandra::Mapper do
     end
 
     context 'wide row' do
+      before do
+        1000.times {|i| subject.insert field1: 42, field2: i + 1 }
+      end
+
       it 'transparently read' do
-        1000.times do |i|
-          subject.insert field1: 42, field2: i + 1
-        end
         subject.get(field1: 42).should have(1000).items
+      end
+
+      it 'read in batches' do
+        total = []
+        subject.get(field1: 42) {|batch| total.concat batch }
+        total.should have(1000).items
       end
     end
   end

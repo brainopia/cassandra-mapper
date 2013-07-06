@@ -1,11 +1,11 @@
 class Cassandra::Mapper::Data
   class Response
-    attr_reader :config, :key_values, :columns
+    attr_reader :config, :key_values, :records
 
-    def initialize(config, key_values, columns)
+    def initialize(config, key_values, records)
       @config     = config
       @key_values = key_values
-      @columns    = columns
+      @records    = records
     end
 
     def keys
@@ -17,8 +17,7 @@ class Cassandra::Mapper::Data
     end
 
     def unpack
-      return [] if columns.empty?
-      records = columns.group_by {|composite, _| composite[0..-2] }
+      return [] if records.empty?
       records.map do |subkey_values, fields|
         record = keys.merge subkeys(subkey_values)
         fields.each do |composite, value|

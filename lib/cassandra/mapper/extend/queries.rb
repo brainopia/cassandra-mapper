@@ -1,6 +1,6 @@
 class Cassandra::Mapper
   BATCH_SIZE   = 500
-  MAX_ONE_SIZE = 10
+  MAX_ONE_SIZE = 15
 
   def insert(hash)
     data = Data::Insert.new config, hash
@@ -16,13 +16,15 @@ class Cassandra::Mapper
 
   def get(query, slice={})
     request = Data::Request.new config, query
-    columns, drop_last = columns_for request, slice
+    buffer  = [] unless block_given?
 
-    response = Data::Response.new config, request.keys, columns
-    records  = response.unpack
+    columns_for request, slice do |batch|
+      response = Data::Response.new config, request.keys, batch
+      records  = response.unpack
+      buffer ? buffer.concat(records) : yield(records)
+    end
 
-    records.pop if drop_last
-    records
+    buffer
   end
 
   def one(keys, filter={})
@@ -45,31 +47,35 @@ class Cassandra::Mapper
   def columns_for(request, filter)
     count = filter.delete(:count)
     batch = filter.delete(:batch_size) || count || BATCH_SIZE
+    last_record = {}
 
-    columns   = {}
-    drop_last = false
-
-   loop do
+    loop do
       result      = columns_get request, filter, batch
       result_size = result.size
 
-      columns.merge! result
+      result      = last_record.merge! result
+      records     = result.group_by {|composite, _| composite[0..-2] }
 
-      break if result_size < batch
+      if result_size >= batch
+        last_record = Hash[records.delete records.keys.last]
+      end
+
+      yield records
+
+      if result_size < batch
+        break
+      end
 
       if count
         if result_size >= count
-          drop_last = true
           break
         else
           count -= result_size
         end
       end
 
-      filter[:start] = { slice: :after, subkey: result.keys.last }
+      filter[:start] = { slice: :after, subkey: last_record.keys.last }
     end
-
-    return columns, drop_last
   end
 
   def columns_get(request, filter, batch)
