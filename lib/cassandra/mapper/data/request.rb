@@ -51,7 +51,8 @@ class Cassandra::Mapper::Data
     end
 
     def extract!(option, from=data)
-      extracted = config.send(option).to_a.map do |it|
+      fields = config.send(option).to_a
+      extracted = fields.map do |it|
         from.delete(it) || from.delete(it.to_s)
       end
 
@@ -60,7 +61,7 @@ class Cassandra::Mapper::Data
       end
 
       if extracted.index(nil)
-        raise ArgumentError, "#{option} contains nil: #{extracted.inspect}"
+        raise ArgumentError, "#{option} (#{fields}) with nil: #{extracted}"
       end
 
       extracted.map(&:to_s)
