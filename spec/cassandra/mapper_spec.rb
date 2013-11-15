@@ -67,6 +67,17 @@ describe Cassandra::Mapper do
           subject.insert field1: nil, field2: 'present', field3: 'present'
         }.to raise_exception
       end
+
+      it 'returns token' do
+        data = { field1: 'foo', field2: 'bar', field3: 'present' }
+        token = subject.token_for data
+        subject.insert data
+        subject.keyspace.get_range_keys(
+          subject.table,
+          start_token: token,
+          count: 1
+        ).should_not be_empty
+      end
     end
 
     context 'various commands' do

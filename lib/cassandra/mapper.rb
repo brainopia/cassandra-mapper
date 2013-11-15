@@ -3,6 +3,7 @@ require 'yaml'
 require 'json'
 require 'time'
 require 'base64'
+require 'murmurhash3'
 require 'cassandra'
 
 Cassandra::THRIFT_DEFAULTS.merge! \
@@ -22,6 +23,7 @@ class Cassandra::Mapper
   require_relative 'mapper/extend/schema'
   require_relative 'mapper/extend/migrate'
   require_relative 'mapper/extend/queries'
+  require_relative 'mapper/extend/data'
 
   require_relative 'mapper/utility/hash'
   require_relative 'mapper/utility/delegate_keys'

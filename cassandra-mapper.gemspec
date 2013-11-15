@@ -14,5 +14,6 @@ Gem::Specification.new do |gem|
   gem.require_paths = %w(lib)
 
   gem.add_dependency 'cassandra', '~> 0.18.0'
+  gem.add_dependency 'murmurhash3-ruby'
   gem.add_development_dependency 'rspec'
 end
