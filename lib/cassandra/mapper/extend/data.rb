@@ -3,7 +3,11 @@ class Cassandra::Mapper
   HALF_RING = 2**63
 
   def token_for(data)
-    hash = MurmurHash3::V128.str_hash raw_key_for(data)
+    token_for_raw raw_key_for(data)
+  end
+
+  def token_for_raw(data)
+    hash = MurmurHash3::V128.str_hash data
     token = (hash[0] << 32) + hash[1]
 
     if token > HALF_RING
