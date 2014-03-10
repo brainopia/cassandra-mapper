@@ -7,11 +7,12 @@ class Cassandra::Mapper
   end
 
   def token_for_raw(data)
+    # TODO: normalize for Long.minimal
     hash = MurmurHash3::V128.str_hash data
     token = (hash[1] << 32) + hash[0]
 
     if token > HALF_RING
-      FULL_RING - token
+      token - FULL_RING
     else
       token
     end
