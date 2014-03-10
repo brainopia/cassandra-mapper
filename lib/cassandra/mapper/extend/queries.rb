@@ -42,6 +42,27 @@ class Cassandra::Mapper
     to_enum.to_a
   end
 
+  # start_token is exclusive, end_token is inclusive
+  def keys(start_token=0, end_token=0, options={})
+    start  = start_token.to_s
+    finish = end_token.to_s
+    batch  = options.fetch :batch_size, 100
+    result = []
+
+    loop do
+      next_keys = keyspace.get_range_keys table,
+        start_token:       start,
+        end_token:         finish,
+        batch_size:        batch,
+        return_empty_rows: true
+
+      break result if next_keys.empty?
+
+      start = token_for_raw(next_keys.last).to_s
+      result.concat next_keys.map! {|it| unpack_keys it }
+    end
+  end
+
   private
 
   def columns_for(request, filter)
