@@ -55,10 +55,11 @@ class Cassandra::Mapper
         end_token:         finish,
         batch_size:        batch,
         return_empty_rows: true
-
       break result if next_keys.empty?
 
       start = token_for_raw(next_keys.last).to_s
+      break result if start == finish
+
       result.concat next_keys.map! {|it| unpack_keys it }
     end
   end
