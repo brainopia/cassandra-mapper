@@ -103,6 +103,21 @@ describe Cassandra::Mapper do
         subject.remove field1: 1
         subject.get(field1: 1).should be_empty
       end
+
+      it '.delete by subkey' do
+        subject.remove field1: 1, field2: 1
+        subject.get(field1: 1).should have(2).items
+      end
+
+      it '.delete by subkey with another column' do
+        subject.remove field1: 1, field2: 1, other_column: true
+        subject.get(field1: 1, field2: 1).should == [first]
+      end
+
+      it '.delete by subkey with same column different value' do
+        subject.remove field1: 1, field2: 1, data: 'different_payload'
+        subject.get(field1: 1, field2: 1).should be_empty
+      end
     end
 
     context 'wide row' do
